@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrackSwap — Find Your Track</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF4500;
+    --orange-dim: rgba(255,69,0,0.15);
+    --black: #070708;
+    --dark: #0f0f11;
+    --card: #141416;
+    --border: rgba(255,255,255,0.07);
+    --text1: #F2F2F4;
+    --text2: #B0B0BC;
+    --text3: #888894;
+    --mono: 'Space Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--text1); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* SKIP LINK */
+  .skip-link {
+    position: absolute; top: -100%; left: 0;
+    background: var(--orange); color: white;
+    padding: 12px 24px; z-index: 9999;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    text-decoration: none; transition: top 0.1s;
+  }
+  .skip-link:focus { top: 0; }
+
+  /* FOCUS VISIBLE */
+  :focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 3px;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 68px;
+    background: rgba(7,7,8,0.85); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: Anton, sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--orange); text-decoration: none; }
+  .nav-links { display: flex; gap: 36px; }
+  .nav-links a { color: var(--text2); text-decoration: none; font-size: 13px; letter-spacing: 0.5px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text1); }
+  .nav-cta { display: flex; gap: 12px; align-items: center; }
+  .btn-ghost { padding: 8px 20px; border: 1px solid var(--border); color: var(--text2); background: none; border-radius: 4px; font-family: inherit; font-size: 13px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+  .btn-ghost:hover { border-color: var(--text2); color: var(--text1); }
+  .btn-orange { padding: 8px 20px; background: var(--orange); color: white; border: none; border-radius: 4px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+  .btn-orange:hover { opacity: 0.88; }
+
+  /* HERO */
+  .hero {
+    position: relative; height: 100vh; min-height: 700px;
+    display: flex; align-items: flex-end; padding-bottom: 80px;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background-image: url('https://images.pexels.com/photos/29406740/pexels-photo-29406740.jpeg?auto=compress&cs=tinysrgb&w=1920');
+    background-size: cover; background-position: center 30%;
+    filter: brightness(0.45);
+    transform: scale(1.04);
+    transition: transform 8s ease;
+  }
+  .hero-bg.loaded { transform: scale(1); }
+  .hero-gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(7,7,8,0.95) 0%, rgba(7,7,8,0.3) 50%, rgba(7,7,8,0.1) 100%),
+                linear-gradient(to right, rgba(7,7,8,0.6) 0%, transparent 60%);
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 80px; max-width: 780px;
+  }
+  .hero-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+    color: var(--orange); text-transform: uppercase; margin-bottom: 24px;
+    opacity: 0; animation: fadeUp 0.8s 0.2s both;
+  }
+  .hero-title {
+    font-family: Anton, sans-serif;
+    font-size: clamp(52px, 7vw, 96px);
+    line-height: 0.95; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 28px;
+    opacity: 0; animation: fadeUp 0.8s 0.4s both;
+  }
+  .hero-title span { color: var(--orange); }
+  .hero-sub {
+    font-size: 17px; line-height: 1.6; color: var(--text2);
+    max-width: 520px; margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 0.8s 0.6s both;
+  }
+
+  /* HERO SEARCH */
+  .hero-search {
+    display: flex; align-items: center;
+    background: rgba(14,14,16,0.92); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;
+    max-width: 580px; margin-bottom: 20px; overflow: hidden;
+    opacity: 0; animation: fadeUp 0.8s 0.75s both;
+  }
+  .hero-search:focus-within { border-color: rgba(255,69,0,0.5); }
+  .hs-group {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 12px 20px; flex: 1; min-width: 0;
+  }
+  .hs-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+    color: var(--orange); text-transform: uppercase; margin-bottom: 4px;
+  }
+  .hs-input {
+    background: none; border: none; outline: none;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text1);
+    width: 100%; min-width: 0;
+  }
+  .hs-input:focus-visible { outline: 2px solid var(--orange); }
+  .hs-input::placeholder { color: var(--text3); }
+  .hs-select { cursor: pointer; }
+  .hs-select option { background: #1a1a1c; }
+  .hs-sep { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; }
+  .hs-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 24px; height: 100%; min-height: 56px;
+    background: var(--orange); color: white; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .hs-btn:hover { background: #ff5a1a; }
+
+  .hero-actions {
+    display: flex; gap: 16px; align-items: center;
+    opacity: 0; animation: fadeUp 0.8s 0.9s both;
+  }
+  .btn-primary {
+    padding: 16px 36px; background: var(--orange); color: white;
+    border: none; border-radius: 4px; font-family: inherit; font-size: 15px;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.3px;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover { background: #ff5a1a; transform: translateY(-1px); }
+  .btn-secondary {
+    padding: 16px 36px; border: 1px solid rgba(255,255,255,0.2); color: var(--text1);
+    background: rgba(255,255,255,0.05); border-radius: 4px; font-family: inherit;
+    font-size: 15px; cursor: pointer; backdrop-filter: blur(4px); transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.08); }
+
+  /* FLOATING CARD */
+  .hero-card {
+    position: absolute; right: 80px; bottom: 80px;
+    background: rgba(14,14,16,0.92); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 24px; width: 280px;
+    backdrop-filter: blur(20px);
+    opacity: 0; animation: fadeIn 0.8s 1.2s both;
+  }
+  .card-header { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin-bottom: 16px; }
+  .card-venue { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .card-venue:last-child { border-bottom: none; }
+  .venue-name { font-size: 13px; font-weight: 500; color: var(--text1); }
+  .venue-meta { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .venue-price { font-family: var(--mono); font-size: 13px; color: var(--orange); }
+
+  /* METRICS */
+  .metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .metric-item {
+    padding: 48px 40px; border-right: 1px solid var(--border);
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .metric-item.visible { opacity: 1; transform: translateY(0); }
+  .metric-item:last-child { border-right: none; }
+  .metric-num {
+    font-family: Anton, sans-serif; font-size: 52px;
+    color: var(--text1); line-height: 1; margin-bottom: 8px;
+  }
+  .metric-num span { color: var(--orange); }
+  .metric-label { font-size: 13px; color: var(--text2); letter-spacing: 0.3px; }
+
+  /* IMAGES GRID */
+  .images-section { padding: 0; }
+  .images-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: clamp(280px, 35vw, 480px);
+    gap: 3px;
+  }
+  .img-cell {
+    position: relative; overflow: hidden; background: var(--dark);
+  }
+  .img-cell img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(0.7) saturate(0.9);
+    transition: transform 0.6s ease, filter 0.4s ease;
+  }
+  .img-cell:hover img { transform: scale(1.04); filter: brightness(0.85) saturate(1.1); }
+  .img-caption {
+    position: absolute; bottom: 20px; left: 20px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+    color: rgba(255,255,255,0.6); text-transform: uppercase;
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    overflow: hidden; background: rgba(255,69,0,0.1); padding: 10px 0;
+    border-top: 1px solid rgba(255,69,0,0.2);
+    border-bottom: 1px solid rgba(255,69,0,0.2);
+  }
+  .ticker {
+    display: flex; white-space: nowrap;
+    animation: ticker 28s linear infinite;
+  }
+  .ticker-item {
+    font-family: Anton, sans-serif; font-size: 12px; letter-spacing: 3px;
+    color: var(--orange); text-transform: uppercase; padding: 0 40px;
+  }
+  .ticker-sep { color: rgba(255,69,0,0.4); }
+
+  /* HOW IT WORKS */
+  .section { padding: 120px 80px; }
+  .section-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 20px; }
+  .section-title { font-family: Anton, sans-serif; font-size: clamp(36px, 4vw, 56px); text-transform: uppercase; line-height: 1.05; margin-bottom: 16px; }
+  .section-sub { font-size: 16px; color: var(--text2); max-width: 500px; line-height: 1.6; }
+
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 64px; }
+  .step {
+    padding: 48px 40px; background: var(--card);
+    border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .step:hover { border-color: rgba(255,69,0,0.3); }
+  .step-number {
+    font-family: Anton, sans-serif; font-size: 96px; line-height: 1;
+    color: rgba(255,255,255,0.04); position: absolute; top: 20px; right: 24px;
+  }
+  .step-index { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--orange); margin-bottom: 28px; }
+  .step-title { font-family: Anton, sans-serif; font-size: 28px; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px; }
+  .step-body { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+  /* FEATURES */
+  .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin-top: 64px; }
+  .feature {
+    padding: 48px; background: var(--card); border: 1px solid var(--border);
+    transition: border-color 0.3s;
+  }
+  .feature:hover { border-color: rgba(255,69,0,0.25); }
+  .feature-icon {
+    width: 44px; height: 44px; border: 1px solid var(--border);
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+  }
+  .feature-icon svg { width: 20px; height: 20px; stroke: var(--orange); fill: none; stroke-width: 1.5; }
+  .feature-title { font-family: Anton, sans-serif; font-size: 22px; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+  .feature-body { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+  /* VENUES */
+  .venues-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 64px; }
+  .venue-card {
+    background: var(--card); border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .venue-card:hover { border-color: rgba(255,69,0,0.3); }
+  .venue-img { height: 200px; overflow: hidden; }
+  .venue-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; filter: brightness(0.8); }
+  .venue-card:hover .venue-img img { transform: scale(1.06); }
+  .venue-info { padding: 24px; }
+  .venue-type { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 10px; }
+  .venue-title { font-family: Anton, sans-serif; font-size: 22px; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+  .venue-location { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+  .venue-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
+  .venue-price-label { font-size: 12px; color: var(--text3); }
+  .venue-price-value { font-family: var(--mono); font-size: 16px; color: var(--orange); }
+
+  /* DUAL */
+  .dual-section { display: grid; grid-template-columns: 1fr 1fr; min-height: 520px; }
+  .dual-panel { padding: 80px; position: relative; overflow: hidden; }
+  .dual-panel.dark { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .dual-panel.darker { background: var(--dark); border: 1px solid var(--border); border-left: none; }
+  .dual-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; margin-bottom: 40px; }
+  .dual-title { font-family: Anton, sans-serif; font-size: clamp(30px, 3vw, 44px); text-transform: uppercase; margin-bottom: 24px; letter-spacing: 0.5px; }
+  .dual-list { list-style: none; }
+  .dual-list li { padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text2); display: flex; align-items: center; gap: 12px; }
+  .dual-list li::before { content: ''; width: 4px; height: 4px; background: var(--orange); border-radius: 50%; flex-shrink: 0; }
+  .dual-cta { margin-top: 36px; display: inline-flex; align-items: center; padding: 14px 32px; background: var(--orange); color: white; font-weight: 600; font-size: 14px; border-radius: 4px; cursor: pointer; border: none; font-family: inherit; transition: background 0.2s; }
+  .dual-cta:hover { background: #ff5a1a; }
+
+  /* TESTIMONIALS */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 64px; }
+  .testimonial {
+    background: var(--card); border: 1px solid var(--border); padding: 40px;
+  }
+  .quote { font-size: 15px; color: var(--text1); line-height: 1.65; margin-bottom: 28px; font-style: italic; }
+  .quote::before { content: '\201C'; color: var(--orange); font-family: Georgia, serif; font-size: 48px; line-height: 0; vertical-align: -18px; margin-right: 4px; }
+  .reviewer { display: flex; align-items: center; gap: 12px; }
+  .reviewer-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--orange-dim); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 12px; color: var(--orange);
+    flex-shrink: 0;
+  }
+  .reviewer-name { font-size: 13px; font-weight: 600; color: var(--text1); }
+  .reviewer-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* CTA */
+  .cta-section {
+    padding: 120px 80px; text-align: center;
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+  }
+  .cta-title { font-family: Anton, sans-serif; font-size: clamp(40px, 5vw, 72px); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
+  .cta-sub { font-size: 17px; color: var(--text2); max-width: 460px; margin: 0 auto 40px; line-height: 1.6; }
+  .cta-actions { display: flex; gap: 16px; justify-content: center; }
+  .badge { display: inline-block; background: var(--orange-dim); border: 1px solid rgba(255,69,0,0.3); color: var(--orange); font-family: var(--mono); font-size: 11px; letter-spacing: 2px; padding: 8px 16px; border-radius: 2px; margin-bottom: 32px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--black); border-top: 1px solid var(--border);
+    padding: 64px 80px 40px;
+  }
+  .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 64px; margin-bottom: 48px; }
+  .footer-logo { font-family: Anton, sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--orange); margin-bottom: 16px; }
+  .footer-desc { font-size: 13px; color: var(--text3); line-height: 1.65; max-width: 240px; }
+  .footer-col h4 { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin-bottom: 20px; }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 10px; }
+  .footer-col ul li a { font-size: 13px; color: var(--text2); text-decoration: none; transition: color 0.2s; }
+  .footer-col ul li a:hover { color: var(--text1); }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 24px; }
+  .footer-copy { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .scroll-reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .scroll-reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .hero-content { padding: 0 40px; }
+    .hero-card { display: none; }
+    .section { padding: 80px 40px; }
+    .steps-grid { grid-template-columns: 1fr; gap: 2px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .venues-grid { grid-template-columns: 1fr 1fr; }
+    .dual-section { grid-template-columns: 1fr; }
+    .dual-panel { padding: 60px 40px; }
+    .dual-panel.darker { border-left: none; border-top: 1px solid var(--border); }
+    .testimonials-grid { grid-template-columns: 1fr; gap: 2px; }
+    footer { padding: 48px 40px 32px; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+  }
+
+  @media (max-width: 768px) {
+    .hero-content { padding: 0 24px; max-width: 100%; }
+    .hero-sub { font-size: 15px; }
+    .hero-search { flex-direction: column; max-width: 100%; border-radius: 4px; }
+    .hs-sep { width: 100%; height: 1px; }
+    .hs-btn { min-height: 48px; justify-content: center; width: 100%; }
+    .hero-actions { flex-direction: column; align-items: flex-start; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .metric-item:nth-child(2n) { border-right: none; }
+    .metric-item:nth-child(3), .metric-item:nth-child(4) { border-top: 1px solid var(--border); }
+    .images-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, clamp(200px, 50vw, 320px)); }
+    .venues-grid { grid-template-columns: 1fr; }
+    .cta-section { padding: 80px 24px; }
+    .cta-actions { flex-direction: column; align-items: stretch; }
+    .footer-top { grid-template-columns: 1fr; }
+  }
+
+  /* PREFERS REDUCED MOTION */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .ticker { animation: none; }
+    .hero-bg { transform: none !important; transition: none !important; }
+    .scroll-reveal { opacity: 1; transform: none; transition: none; }
+    .metric-item { opacity: 1; transform: none; transition: none; }
+    .hero-tag, .hero-title, .hero-sub, .hero-search, .hero-actions, .hero-card {
+      opacity: 1; animation: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<nav>
+  <a href="#" class="nav-logo">TRACKSWAP</a>
+  <div class="nav-links">
+    <a href="#">Explore Venues</a>
+    <a href="#">How It Works</a>
+    <a href="#">For Venue Owners</a>
+    <a href="#">Insurance</a>
+    <a href="#">Community</a>
+  </div>
+  <div class="nav-cta">
+    <button class="btn-ghost" type="button">Sign In</button>
+    <button class="btn-orange" type="button">List Your Track</button>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <div class="hero-tag">The Track Day Marketplace</div>
+    <h1 class="hero-title">Find Your<br><span>Track.</span><br>Own The Lap.</h1>
+    <p class="hero-sub">Discover circuits, airfields, and private venues across Europe. Book a session in minutes. Arrive, drive, repeat.</p>
+    <form class="hero-search" role="search" onsubmit="return false;">
+      <div class="hs-group">
+        <label class="hs-label" for="hs-location">Where</label>
+        <input id="hs-location" class="hs-input" type="text" placeholder="UK, Spain, Europe…" autocomplete="off">
+      </div>
+      <div class="hs-sep"></div>
+      <div class="hs-group">
+        <label class="hs-label" for="hs-date">When</label>
+        <input id="hs-date" class="hs-input" type="date" autocomplete="off">
+      </div>
+      <div class="hs-sep"></div>
+      <div class="hs-group">
+        <label class="hs-label" for="hs-type">Venue Type</label>
+        <select id="hs-type" class="hs-input hs-select">
+          <option value="">Any Type</option>
+          <option>Circuit</option>
+          <option>Airfield</option>
+          <option>Karting</option>
+          <option>Autocross</option>
+        </select>
+      </div>
+      <button type="submit" class="hs-btn" aria-label="Search venues">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search
+      </button>
+    </form>
+    <div class="hero-actions">
+      <button class="btn-primary" type="button">Browse All Venues</button>
+      <button class="btn-secondary" type="button">List Your Venue</button>
+    </div>
+  </div>
+  <div class="hero-card" aria-label="Available venues this week">
+    <div class="card-header">Available This Week</div>
+    <div class="card-venue">
+      <div>
+        <div class="venue-name">Circuito de Jerez</div>
+        <div class="venue-meta">Jerez, Spain · 4.4 km</div>
+      </div>
+      <div class="venue-price">€320</div>
+    </div>
+    <div class="card-venue">
+      <div>
+        <div class="venue-name">Airfield Rota</div>
+        <div class="venue-meta">Cadiz, Spain · Tarmac</div>
+      </div>
+      <div class="venue-price">€180</div>
+    </div>
+    <div class="card-venue">
+      <div>
+        <div class="venue-name">Karting Lloret</div>
+        <div class="venue-meta">Girona, Spain · 1.2 km</div>
+      </div>
+      <div class="venue-price">€95</div>
+    </div>
+    <div class="card-venue">
+      <div>
+        <div class="venue-name">Circuito de Navarra</div>
+        <div class="venue-meta">Navarra, Spain · 3.9 km</div>
+      </div>
+      <div class="venue-price">€260</div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<div class="metrics">
+  <div class="metric-item scroll-reveal">
+    <div class="metric-num">214<span>+</span></div>
+    <div class="metric-label">Venues listed across Europe</div>
+  </div>
+  <div class="metric-item scroll-reveal">
+    <div class="metric-num">40<span>%</span></div>
+    <div class="metric-label">Track day growth since 2020</div>
+  </div>
+  <div class="metric-item scroll-reveal">
+    <div class="metric-num">60<span>%</span></div>
+    <div class="metric-label">Average venue idle capacity</div>
+  </div>
+  <div class="metric-item scroll-reveal">
+    <div class="metric-num">15<span>%</span></div>
+    <div class="metric-label">Commission-only, no upfront fees</div>
+  </div>
+</div>
+
+<!-- IMAGE GRID -->
+<div class="images-section">
+  <div class="images-grid">
+    <div class="img-cell">
+      <img src="https://images.pexels.com/photos/1119796/pexels-photo-1119796.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Sports bike racer at speed on circuit" loading="lazy" width="1200" height="800">
+      <div class="img-caption">Moto Racing — Circuit Speed</div>
+    </div>
+    <div class="img-cell">
+      <img src="https://images.pexels.com/photos/6697875/pexels-photo-6697875.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Yas Marina circuit at sunset Abu Dhabi" loading="lazy" width="800" height="533">
+      <div class="img-caption">Dusk — Yas Marina</div>
+    </div>
+    <div class="img-cell">
+      <img src="https://images.pexels.com/photos/29004614/pexels-photo-29004614.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Race car on atmospheric urban circuit" loading="lazy" width="800" height="533">
+      <div class="img-caption">Street Circuit — Urban Racing</div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker">
+    <span class="ticker-item">Circuito de Jerez</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Airfield Rota</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Karting Lloret</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Industrial Lot BCN</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Circuito de Navarra</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Brands Hatch</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Spa-Francorchamps</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Circuit de Catalunya</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Circuito de Jerez</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Airfield Rota</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Karting Lloret</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Industrial Lot BCN</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Circuito de Navarra</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Brands Hatch</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Spa-Francorchamps</span><span class="ticker-item ticker-sep">—</span>
+    <span class="ticker-item">Circuit de Catalunya</span><span class="ticker-item ticker-sep">—</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section scroll-reveal">
+  <div class="section-tag">The Process</div>
+  <h2 class="section-title">From Search<br>to Asphalt</h2>
+  <p class="section-sub">Three steps between you and a clear track. No phone calls, no waitlists, no paperwork.</p>
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-number" aria-hidden="true">01</div>
+      <div class="step-index">01 — Search</div>
+      <h3 class="step-title">Find Your Venue</h3>
+      <p class="step-body">Filter by date, location, surface type, noise limit, and price. Discover circuits, airfields, and private tarmac you never knew existed.</p>
+    </div>
+    <div class="step">
+      <div class="step-number" aria-hidden="true">02</div>
+      <div class="step-index">02 — Book</div>
+      <h3 class="step-title">Reserve &amp; Insure</h3>
+      <p class="step-body">One-click booking through Stripe. Add per-session track insurance at checkout. Complete your digital safety brief before arrival.</p>
+    </div>
+    <div class="step">
+      <div class="step-number" aria-hidden="true">03</div>
+      <div class="step-index">03 — Drive</div>
+      <h3 class="step-title">Arrive &amp; Drive</h3>
+      <p class="step-body">Show your digital confirmation at the gate. The track is yours. No crowds, no organiser delays — just you and the asphalt.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section scroll-reveal" style="padding-top:0;">
+  <div class="section-tag">Platform Features</div>
+  <h2 class="section-title">Infrastructure<br>for the Serious Driver</h2>
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <h3 class="feature-title">Hidden Supply Unlocked</h3>
+      <p class="feature-body">Airfields, industrial lots, private karting tracks — venues with 60% idle capacity that no platform has ever made bookable. We find them, onboard them, and make them yours.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h3 class="feature-title">Insurance at Checkout</h3>
+      <p class="feature-body">Per-session on-track damage cover and third-party liability, purchased with a single click. Partnered with specialist motorsport insurers. No separate policy, no broker, no delay.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3 class="feature-title">Digital Safety Compliance</h3>
+      <p class="feature-body">Every venue has a mandatory video safety brief completed in-app before arrival. Digital waiver, venue-specific hazard notes, and e-signature — all documented and time-stamped.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h3 class="feature-title">Real-Time Noise Monitoring</h3>
+      <p class="feature-body">IoT dB sensors at venue boundaries feed a live dashboard. Venue owners see decibel levels in real time. Automatic alerts before noise limits are breached. More venues stay open longer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VENUES SHOWCASE -->
+<section class="section scroll-reveal" style="padding-top:0; background: var(--dark);">
+  <div class="section-tag">Featured Venues</div>
+  <h2 class="section-title">Your Next<br>Track Day</h2>
+  <div class="venues-grid">
+    <div class="venue-card">
+      <div class="venue-img">
+        <img src="https://images.pexels.com/photos/29382704/pexels-photo-29382704.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Formula 1 race track high speed" loading="lazy" width="600" height="400">
+      </div>
+      <div class="venue-info">
+        <div class="venue-type">Permanent Circuit</div>
+        <h3 class="venue-title">Circuito de Jerez</h3>
+        <div class="venue-location">Jerez de la Frontera, Spain · 4.4 km · 13 turns</div>
+        <div class="venue-footer">
+          <div>
+            <div class="venue-price-label">From per session</div>
+            <div class="venue-price-value">€320</div>
+          </div>
+          <button class="btn-orange" type="button" style="font-size:12px; padding:8px 16px;">Book</button>
+        </div>
+      </div>
+    </div>
+    <div class="venue-card">
+      <div class="venue-img">
+        <img src="https://images.pexels.com/photos/29115172/pexels-photo-29115172.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Lamborghini supercar on open airfield runway" loading="lazy" width="600" height="400">
+      </div>
+      <div class="venue-info">
+        <div class="venue-type">Airfield — Non-Traditional</div>
+        <h3 class="venue-title">Airfield Rota</h3>
+        <div class="venue-location">Cadiz, Spain · 2.1 km tarmac runway</div>
+        <div class="venue-footer">
+          <div>
+            <div class="venue-price-label">From per session</div>
+            <div class="venue-price-value">€180</div>
+          </div>
+          <button class="btn-orange" type="button" style="font-size:12px; padding:8px 16px;">Book</button>
+        </div>
+      </div>
+    </div>
+    <div class="venue-card">
+      <div class="venue-img">
+        <img src="https://images.pexels.com/photos/5640496/pexels-photo-5640496.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Go-karts racing on karting track" loading="lazy" width="600" height="400">
+      </div>
+      <div class="venue-info">
+        <div class="venue-type">Karting Circuit</div>
+        <h3 class="venue-title">Karting Lloret</h3>
+        <div class="venue-location">Girona, Spain · 1.2 km · Outdoor</div>
+        <div class="venue-footer">
+          <div>
+            <div class="venue-price-label">From per session</div>
+            <div class="venue-price-value">€95</div>
+          </div>
+          <button class="btn-orange" type="button" style="font-size:12px; padding:8px 16px;">Book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center; margin-top:40px;">
+    <button class="btn-secondary" type="button" style="padding:14px 36px;">Browse All 214 Venues</button>
+  </div>
+</section>
+
+<!-- DUAL -->
+<div class="dual-section scroll-reveal">
+  <div class="dual-panel dark">
+    <div class="dual-label">For Drivers</div>
+    <h2 class="dual-title">Stop Settling For<br>Sold-Out Dates</h2>
+    <ul class="dual-list">
+      <li>Search by date, location, and track type</li>
+      <li>Book in under 3 minutes with instant confirmation</li>
+      <li>Per-session insurance added at checkout</li>
+      <li>Digital safety brief — no paperwork on arrival</li>
+      <li>Access airfields and private venues no one else lists</li>
+      <li>Cancel up to 48 hours before with full refund</li>
+    </ul>
+    <button class="dual-cta" type="button">Find a Track Today</button>
+  </div>
+  <div class="dual-panel darker">
+    <div class="dual-label">For Venue Owners</div>
+    <h2 class="dual-title">Your Empty Days<br>Are Revenue</h2>
+    <ul class="dual-list">
+      <li>List for free — pay only when you get a booking</li>
+      <li>15% commission, no upfront cost, no subscription</li>
+      <li>Automated payments, instant payouts via Stripe</li>
+      <li>Digital safety and compliance handled by the platform</li>
+      <li>Optional noise monitoring dashboard included</li>
+      <li>Average venue earns €4,200/month in additional revenue</li>
+    </ul>
+    <button class="dual-cta" type="button">List Your Venue</button>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<section class="section scroll-reveal">
+  <div class="section-tag">From the Community</div>
+  <h2 class="section-title">Drivers &amp;<br>Venue Owners</h2>
+  <div class="testimonials-grid">
+    <div class="testimonial">
+      <p class="quote">Found a private airfield 40 minutes from home that I had no idea existed. The tarmac was immaculate. Booked it for a Tuesday morning — track was completely empty.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" aria-label="Marc Riera avatar">MR</div>
+        <div>
+          <div class="reviewer-name">Marc Riera</div>
+          <div class="reviewer-role">GT3 Driver — Barcelona</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <p class="quote">We were sitting empty on Wednesdays and Thursdays every week. TrackSwap filled those slots within a month. Commission-only means zero risk on our side.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" aria-label="Javier Llorente avatar">JL</div>
+        <div>
+          <div class="reviewer-name">Javier Llorente</div>
+          <div class="reviewer-role">Circuit Owner — Navarra</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <p class="quote">The insurance integration is the thing. I can add cover for my car at checkout. No separate broker, no waiting. It removes the last excuse not to go to the track.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" aria-label="Sophie Kerr avatar">SK</div>
+        <div>
+          <div class="reviewer-name">Sophie Kerr</div>
+          <div class="reviewer-role">Track Day Enthusiast — London</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section scroll-reveal">
+  <div class="badge">Now Live in UK and Spain</div>
+  <h2 class="cta-title">The Track<br>Is Waiting</h2>
+  <p class="cta-sub">214 venues. Available today. No phone calls, no waitlists. Just find your track and drive.</p>
+  <div class="cta-actions">
+    <button class="btn-primary" type="button" style="padding:16px 48px; font-size:16px;">Browse Venues</button>
+    <button class="btn-secondary" type="button" style="padding:16px 48px; font-size:16px;">List Your Track</button>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">TRACKSWAP</div>
+      <p class="footer-desc">The marketplace connecting drivers with circuits, airfields, and private venues across Europe. Every empty track is an opportunity.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="#">Browse Venues</a></li>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">Insurance</a></li>
+        <li><a href="#">Safety Briefing</a></li>
+        <li><a href="#">Pricing</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>For Owners</h4>
+      <ul>
+        <li><a href="#">List Your Venue</a></li>
+        <li><a href="#">Owner Dashboard</a></li>
+        <li><a href="#">Noise Monitoring</a></li>
+        <li><a href="#">Certification</a></li>
+        <li><a href="#">Revenue Calculator</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Investors</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">TRACKSWAP &copy; 2026 — All rights reserved</div>
+    <div class="footer-copy">Privacy Policy · Terms of Service · Cookie Settings</div>
+  </div>
+</footer>
+
+<script>
+  // Hero bg load
+  const bg = document.getElementById('heroBg');
+  const img = new Image();
+  img.onload = () => bg.classList.add('loaded');
+  img.src = 'https://images.pexels.com/photos/29406740/pexels-photo-29406740.jpeg?auto=compress&cs=tinysrgb&w=1920';
+
+  // Scroll reveal (handles both .scroll-reveal and .metric-item)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.scroll-reveal, .metric-item').forEach(el => observer.observe(el));
+
+  // Metrics stagger via transition-delay
+  document.querySelectorAll('.metric-item').forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.12}s`;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrackSwap — Editorial Motorsport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --warm-white: #FAF7F2;
+    --black: #0D0D0D;
+    --dark: #1A1814;
+    --orange: #C8420A;
+    --orange-light: #E84E0F;
+    --rule: #2C2A26;
+    --rule-light: #E0DAD0;
+    --text-body: #2C2A26;
+    --text-sub: #5C5850;
+    --text-dim: #9A9486;
+    --serif: 'Playfair Display', Georgia, serif;
+    --body-serif: 'Source Serif 4', Georgia, serif;
+    --mono: 'Space Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--warm-white); color: var(--text-body);
+    font-family: var(--body-serif);
+    overflow-x: hidden;
+  }
+
+  /* SKIP LINK */
+  .skip-link {
+    position: absolute; top: -100%; left: 0;
+    background: var(--orange); color: white;
+    padding: 12px 24px; z-index: 9999;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    text-decoration: none; transition: top 0.1s;
+  }
+  .skip-link:focus { top: 0; }
+
+  /* FOCUS VISIBLE */
+  :focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 3px;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--rule-light);
+  }
+  .nav-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 56px;
+    border-bottom: 1px solid var(--rule-light);
+  }
+  .nav-issue { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+  .nav-logo { font-family: var(--serif); font-size: 26px; font-weight: 900; letter-spacing: 2px; color: var(--black); text-decoration: none; }
+  .nav-actions { display: flex; gap: 20px; align-items: center; }
+  .nav-link { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-sub); text-decoration: none; transition: color 0.2s; }
+  .nav-link:hover { color: var(--black); }
+  .nav-cta-btn { padding: 8px 20px; background: var(--orange); color: white; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer; transition: background 0.2s; }
+  .nav-cta-btn:hover { background: var(--orange-light); }
+
+  .nav-bottom {
+    display: flex; align-items: center; gap: 0;
+    padding: 0 48px; height: 40px;
+    overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .nav-bottom::-webkit-scrollbar { display: none; }
+  .nav-cat {
+    padding: 0 20px; height: 100%; display: flex; align-items: center;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-sub); text-decoration: none;
+    border-right: 1px solid var(--rule-light); transition: color 0.2s;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .nav-cat:first-child { padding-left: 0; }
+  .nav-cat:hover { color: var(--orange); }
+  .nav-cat.active { color: var(--orange); }
+
+  /* HERO — EDITORIAL SPLIT */
+  .hero {
+    margin-top: 96px;
+    display: grid; grid-template-columns: 1fr 520px;
+    min-height: calc(100vh - 96px);
+    border-bottom: 2px solid var(--rule);
+  }
+  .hero-left {
+    padding: 72px 64px; display: flex; flex-direction: column;
+    border-right: 1px solid var(--rule-light);
+    position: relative;
+  }
+  .hero-vol {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--text-dim);
+    text-transform: uppercase; margin-bottom: 48px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .hero-vol::after { content: ''; flex: 1; height: 1px; background: var(--rule-light); }
+  .hero-category {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+    color: var(--orange); text-transform: uppercase; margin-bottom: 20px;
+  }
+  .hero-headline {
+    font-family: var(--serif); font-weight: 900;
+    font-size: clamp(44px, 5.5vw, 84px);
+    line-height: 1.0; letter-spacing: -1px;
+    color: var(--black); margin-bottom: 28px;
+  }
+  .hero-headline em { color: var(--orange); font-style: italic; }
+  .hero-deck {
+    font-family: var(--body-serif); font-size: 18px; font-weight: 300;
+    line-height: 1.65; color: var(--text-sub); max-width: 480px; margin-bottom: 40px;
+    border-left: 3px solid var(--orange); padding-left: 20px;
+  }
+  .hero-byline {
+    display: flex; align-items: center; gap: 24px; margin-bottom: 32px;
+    padding-bottom: 32px; border-bottom: 1px solid var(--rule-light);
+  }
+  .byline-text { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--text-dim); text-transform: uppercase; }
+  .byline-text strong { color: var(--text-body); }
+
+  /* HERO SEARCH */
+  .hero-search {
+    display: flex; align-items: stretch;
+    border: 1px solid var(--rule-light);
+    background: var(--warm-white);
+    max-width: 540px; margin-bottom: 20px;
+  }
+  .hero-search:focus-within { border-color: var(--orange); }
+  .hs-col {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 10px 20px; flex: 1; min-width: 0;
+  }
+  .hs-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+    color: var(--orange); text-transform: uppercase; margin-bottom: 4px;
+  }
+  .hs-input {
+    background: none; border: none; outline: none;
+    font-family: var(--body-serif); font-size: 14px; color: var(--text-body);
+    width: 100%; min-width: 0;
+  }
+  .hs-input:focus-visible { outline: 2px solid var(--orange); }
+  .hs-input::placeholder { color: var(--text-dim); }
+  .hs-select { cursor: pointer; }
+  .hs-rule { width: 1px; background: var(--rule-light); flex-shrink: 0; }
+  .hs-submit {
+    padding: 0 24px;
+    background: var(--orange); color: white; border: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+  }
+  .hs-submit:hover { background: var(--orange-light); }
+
+  .hero-actions { display: flex; gap: 16px; }
+  .btn-editorial {
+    padding: 14px 36px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .btn-editorial.primary { background: var(--orange); color: white; border: none; }
+  .btn-editorial.primary:hover { background: var(--orange-light); }
+  .btn-editorial.secondary { background: none; color: var(--text-body); border: 1px solid var(--rule-light); }
+  .btn-editorial.secondary:hover { border-color: var(--text-body); }
+
+  /* PULL QUOTE — EDITORIAL STYLE */
+  .hero-pullquote {
+    position: absolute; bottom: 72px; right: 24px;
+    width: 240px; background: var(--black); padding: 24px 20px;
+    border: 1px solid var(--rule);
+    z-index: 3;
+  }
+  .pq-text { font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.6; color: var(--cream); margin-bottom: 16px; }
+  .pq-source { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+
+  .hero-right {
+    position: relative; overflow: hidden;
+    background: var(--dark);
+  }
+  .hero-right img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: sepia(0.15) brightness(0.7) contrast(1.05);
+    transition: transform 6s ease;
+  }
+  .hero-right:hover img { transform: scale(1.03); }
+  .hero-right-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 60px 24px 24px;
+    background: linear-gradient(transparent, rgba(13,13,13,0.92));
+  }
+  .caption-text { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+
+  /* RULES / DIVIDERS */
+  .section-rule {
+    display: flex; align-items: center;
+    padding: 0 64px; height: 48px;
+    border-bottom: 1px solid var(--rule-light);
+    background: var(--cream);
+  }
+  .rule-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-right: 24px; white-space: nowrap; }
+  .rule-line { flex: 1; height: 1px; background: var(--rule-light); }
+  .rule-num { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--text-dim); margin-left: 24px; }
+
+  /* METRICS STRIP */
+  .metrics-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--rule-light);
+    background: var(--cream);
+  }
+  .ms-item {
+    padding: 36px 40px; border-right: 1px solid var(--rule-light);
+  }
+  .ms-item:last-child { border-right: none; }
+  .ms-num { font-family: var(--serif); font-size: 48px; font-weight: 900; color: var(--black); line-height: 1; margin-bottom: 6px; }
+  .ms-num span { color: var(--orange); }
+  .ms-label { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--text-dim); text-transform: uppercase; }
+
+  /* PHOTO EDITORIAL */
+  .photo-editorial {
+    display: grid; grid-template-columns: 2fr 1fr;
+    height: 440px; border-bottom: 2px solid var(--rule);
+    background: var(--dark);
+  }
+  .pe-main { position: relative; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.06); }
+  .pe-main img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.65) contrast(1.1); }
+  .pe-side { display: flex; flex-direction: column; }
+  .pe-sub { flex: 1; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.06); position: relative; }
+  .pe-sub img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.55) saturate(0.8); }
+  .pe-info {
+    padding: 24px; background: var(--black); border: none;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .pe-info-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+  .pe-info-title { font-family: var(--serif); font-size: 18px; color: var(--cream); margin-bottom: 6px; }
+  .pe-info-sub { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.60); letter-spacing: 1px; }
+  .pe-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 40px 28px 20px;
+    background: linear-gradient(transparent, rgba(13,13,13,0.9));
+  }
+  .pe-overlay-text { font-family: var(--serif); font-style: italic; font-size: 16px; color: rgba(255,255,255,0.85); line-height: 1.4; }
+
+  /* THREE-COL CONTENT */
+  .content-3col {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; padding: 72px 64px;
+    border-bottom: 1px solid var(--rule-light);
+    background: var(--warm-white);
+  }
+  .col-article { padding: 0 40px; border-right: 1px solid var(--rule-light); }
+  .col-article:first-child { padding-left: 0; }
+  .col-article:last-child { padding-right: 0; border-right: none; }
+  .col-category { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 16px; }
+  .col-title { font-family: var(--serif); font-size: 22px; font-weight: 700; line-height: 1.25; margin-bottom: 14px; color: var(--black); }
+  .col-body { font-size: 14px; color: var(--text-sub); line-height: 1.75; }
+  .col-more { display: inline-block; margin-top: 16px; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); text-decoration: none; border-bottom: 1px solid var(--orange); padding-bottom: 1px; }
+
+  /* FEATURE EDITORIAL */
+  .feature-editorial {
+    display: grid; grid-template-columns: 380px 1fr;
+    border-bottom: 2px solid var(--rule);
+    background: var(--cream);
+  }
+  .fe-sidebar {
+    padding: 72px 48px; border-right: 1px solid var(--rule-light);
+  }
+  .fe-sidebar-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 32px; }
+  .fe-sidebar-title { font-family: var(--serif); font-size: 36px; font-weight: 900; line-height: 1.1; margin-bottom: 24px; color: var(--black); }
+  .fe-sidebar-body { font-size: 15px; color: var(--text-sub); line-height: 1.7; margin-bottom: 32px; }
+  .fe-sidebar-btn { display: inline-flex; align-items: center; padding: 12px 28px; background: var(--orange); color: white; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border: none; transition: background 0.2s; }
+  .fe-sidebar-btn:hover { background: var(--orange-light); }
+  .fe-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .fe-item {
+    padding: 48px 40px;
+    border-bottom: 1px solid var(--rule-light); border-right: 1px solid var(--rule-light);
+  }
+  .fe-item:nth-child(2n) { border-right: none; }
+  .fe-item:nth-child(3), .fe-item:nth-child(4) { border-bottom: none; }
+  .fe-item-num { font-family: var(--serif); font-size: 48px; font-weight: 900; color: rgba(0,0,0,0.06); margin-bottom: 16px; line-height: 1; }
+  .fe-item-title { font-family: var(--serif); font-size: 20px; font-weight: 700; margin-bottom: 10px; color: var(--black); }
+  .fe-item-body { font-size: 13px; color: var(--text-sub); line-height: 1.7; }
+
+  /* VENUES EDITORIAL */
+  .venues-editorial {
+    padding: 72px 64px;
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--rule-light);
+  }
+  .ve-header {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: baseline; margin-bottom: 48px;
+    padding-bottom: 20px; border-bottom: 2px solid var(--rule);
+  }
+  .ve-header h2 { font-family: var(--serif); font-size: 36px; font-weight: 900; color: var(--black); }
+  .ve-header a { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--orange); text-decoration: none; text-transform: uppercase; }
+  .ve-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .ve-card { border: 1px solid var(--rule-light); border-right: none; }
+  .ve-card:last-child { border-right: 1px solid var(--rule-light); }
+  .ve-img { height: 200px; overflow: hidden; position: relative; }
+  .ve-img img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8) saturate(0.9); transition: transform 0.5s, filter 0.3s; }
+  .ve-card:hover .ve-img img { transform: scale(1.04); filter: brightness(0.9) saturate(1); }
+  .ve-body { padding: 24px; border-top: 1px solid var(--rule-light); }
+  .ve-type { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+  .ve-name { font-family: var(--serif); font-size: 20px; font-weight: 700; margin-bottom: 6px; color: var(--black); }
+  .ve-loc { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 16px; }
+  .ve-foot { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--rule-light); }
+  .ve-price { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--orange); }
+  .ve-book { padding: 8px 18px; background: var(--black); color: white; font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; border: none; cursor: pointer; transition: background 0.2s; }
+  .ve-book:hover { background: var(--orange); }
+
+  /* DUAL EDITORIAL */
+  .dual-editorial {
+    display: grid; grid-template-columns: 1fr 1fr;
+    border-top: 2px solid var(--rule); border-bottom: 2px solid var(--rule);
+  }
+  .de-panel { padding: 72px 64px; }
+  .de-panel.light { background: var(--warm-white); border-right: 1px solid var(--rule-light); }
+  .de-panel.dark { background: var(--black); }
+  .de-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 40px; }
+  .de-panel.light .de-label { color: var(--text-dim); }
+  .de-panel.dark .de-label { color: rgba(255,255,255,0.55); }
+  .de-title { font-family: var(--serif); font-size: clamp(26px, 2.5vw, 40px); font-weight: 900; line-height: 1.1; margin-bottom: 32px; }
+  .de-panel.light .de-title { color: var(--black); }
+  .de-panel.dark .de-title { color: var(--cream); }
+  .de-list { list-style: none; }
+  .de-list li { padding: 14px 0; border-bottom: 1px solid; font-size: 14px; display: flex; gap: 16px; }
+  .de-panel.light .de-list li { border-color: var(--rule-light); color: var(--text-sub); }
+  .de-panel.dark .de-list li { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.70); }
+  .de-list li::before { content: '—'; font-family: var(--mono); color: var(--orange); flex-shrink: 0; }
+  .de-btn { margin-top: 36px; display: inline-flex; align-items: center; padding: 14px 32px; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border: none; transition: background 0.2s; }
+  .de-panel.light .de-btn { background: var(--orange); color: white; }
+  .de-panel.dark .de-btn { background: var(--orange); color: white; }
+  .de-btn:hover { background: var(--orange-light) !important; }
+
+  /* TESTIMONIALS EDITORIAL */
+  .testi-editorial {
+    padding: 72px 64px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--rule-light);
+  }
+  .te-header { font-family: var(--serif); font-size: 32px; font-weight: 900; margin-bottom: 48px; padding-bottom: 20px; border-bottom: 2px solid var(--rule); }
+  .te-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .te-quote { font-family: var(--body-serif); font-style: italic; font-size: 16px; line-height: 1.7; color: var(--text-body); margin-bottom: 20px; }
+  .te-rule { width: 40px; height: 2px; background: var(--orange); margin-bottom: 14px; }
+  .te-name { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-body); }
+  .te-role { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+
+  /* CTA EDITORIAL */
+  .cta-editorial {
+    display: grid; grid-template-columns: 1fr 400px;
+    border-bottom: 2px solid var(--rule);
+    overflow: hidden;
+  }
+  .ce-content { padding: 80px 64px; background: var(--black); }
+  .ce-issue { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 24px; }
+  .ce-title { font-family: var(--serif); font-size: clamp(40px, 5vw, 72px); font-weight: 900; color: var(--cream); line-height: 1.0; margin-bottom: 20px; }
+  .ce-title em { color: var(--orange); font-style: italic; }
+  .ce-body { font-size: 16px; color: rgba(255,255,255,0.72); max-width: 440px; line-height: 1.65; margin-bottom: 40px; }
+  .ce-actions { display: flex; gap: 16px; }
+  .ce-img { position: relative; overflow: hidden; }
+  .ce-img img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5) sepia(0.2); }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark);
+    border-top: 2px solid var(--rule);
+    padding: 64px;
+  }
+  .ft-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 64px; margin-bottom: 48px; }
+  .ft-logo { font-family: var(--serif); font-size: 24px; font-weight: 900; color: var(--cream); margin-bottom: 16px; }
+  .ft-desc { font-size: 13px; color: rgba(255,255,255,0.60); line-height: 1.65; max-width: 220px; }
+  .ft-head { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.55); text-transform: uppercase; margin-bottom: 20px; }
+  .ft-links { list-style: none; }
+  .ft-links li { margin-bottom: 10px; }
+  .ft-links a { font-size: 13px; color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s; }
+  .ft-links a:hover { color: var(--cream); }
+  .ft-bottom { display: flex; justify-content: space-between; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .ft-copy { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.50); letter-spacing: 1px; }
+
+  /* SCROLL REVEAL */
+  .sr { opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s; }
+  .sr.in { opacity: 1; transform: translateY(0); }
+
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-right { height: 400px; }
+    .hero-left { border-right: none; padding: 56px 48px; }
+    .hero-pullquote { display: none; }
+    .feature-editorial { grid-template-columns: 1fr; }
+    .fe-sidebar { border-right: none; border-bottom: 1px solid var(--rule-light); }
+    .fe-grid { grid-template-columns: 1fr; }
+    .fe-item:nth-child(odd) { border-right: none; }
+  }
+
+  @media (max-width: 900px) {
+    .nav-top { padding: 0 24px; }
+    .nav-issue { display: none; }
+    .nav-bottom { padding: 0 24px; }
+    .hero { margin-top: 96px; }
+    .content-3col { grid-template-columns: 1fr; padding: 48px 32px; }
+    .col-article { padding: 0 0 32px; border-right: none; border-bottom: 1px solid var(--rule-light); }
+    .col-article:last-child { border-bottom: none; padding-bottom: 0; }
+    .metrics-strip { grid-template-columns: 1fr 1fr; }
+    .ms-item:nth-child(2) { border-right: none; }
+    .ms-item:nth-child(3), .ms-item:nth-child(4) { border-top: 1px solid var(--rule-light); }
+    .ve-grid { grid-template-columns: 1fr; }
+    .ve-card { border-right: 1px solid var(--rule-light) !important; }
+    .photo-editorial { grid-template-columns: 1fr; height: auto; }
+    .pe-main { height: 320px; }
+    .pe-sub { height: 200px; }
+    .dual-editorial { grid-template-columns: 1fr; }
+    .de-panel.light { border-right: none; border-bottom: 2px solid var(--rule); }
+    .te-grid { grid-template-columns: 1fr; gap: 32px; }
+    .ft-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    footer { padding: 48px 32px; }
+    .cta-editorial { grid-template-columns: 1fr; }
+    .ce-img { height: 260px; }
+  }
+
+  @media (max-width: 600px) {
+    .nav-top { flex-wrap: wrap; height: auto; padding: 12px 20px; gap: 12px; }
+    .nav-issue { display: none; }
+    .hero-left { padding: 40px 24px; }
+    .hero-search { flex-direction: column; max-width: 100%; }
+    .hs-rule { width: 100%; height: 1px; }
+    .hs-submit { padding: 14px; }
+    .hero-actions { flex-direction: column; }
+    .btn-editorial { text-align: center; }
+    .section-rule { padding: 0 24px; }
+    .venues-editorial { padding: 48px 24px; }
+    .testi-editorial { padding: 48px 24px; }
+    .ce-content { padding: 56px 32px; }
+    .ft-grid { grid-template-columns: 1fr; }
+    footer { padding: 40px 24px; }
+  }
+
+  /* PREFERS REDUCED MOTION */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .sr { opacity: 1; transform: none; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<nav>
+  <div class="nav-top">
+    <div class="nav-issue">Vol. I — Issue 01 — 2026 — Track Day Marketplace</div>
+    <a href="#" class="nav-logo">TrackSwap</a>
+    <div class="nav-actions">
+      <a href="#" class="nav-link">Sign In</a>
+      <button class="nav-cta-btn" type="button">List Your Track</button>
+    </div>
+  </div>
+  <div class="nav-bottom">
+    <a href="#" class="nav-cat active">All Venues</a>
+    <a href="#" class="nav-cat">Permanent Circuits</a>
+    <a href="#" class="nav-cat">Airfields</a>
+    <a href="#" class="nav-cat">Karting Tracks</a>
+    <a href="#" class="nav-cat">Autocross</a>
+    <a href="#" class="nav-cat">How It Works</a>
+    <a href="#" class="nav-cat">For Venue Owners</a>
+    <a href="#" class="nav-cat">Insurance</a>
+    <a href="#" class="nav-cat">Community</a>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- HERO -->
+<section class="hero sr">
+  <div class="hero-left">
+    <div class="hero-vol">Vol. I — The Track Day Marketplace</div>
+    <div class="hero-category">Platform — Europe</div>
+    <h1 class="hero-headline">The Airbnb<br>for Racing<br><em>Circuits.</em></h1>
+    <p class="hero-deck">Thousands of circuits, airfields, and private venues sit empty sixty percent of the year. TrackSwap makes them bookable in minutes — with integrated insurance, digital safety compliance, and real-time noise monitoring built in.</p>
+    <div class="hero-byline">
+      <div class="byline-text"><strong>TrackSwap Platform</strong> — UK and Spain</div>
+      <div class="byline-text">214 venues live</div>
+      <div class="byline-text">March 2026</div>
+    </div>
+    <form class="hero-search" role="search" onsubmit="return false;">
+      <div class="hs-col">
+        <label class="hs-label" for="hs-location">Location</label>
+        <input id="hs-location" class="hs-input" type="text" placeholder="UK, Spain, Europe…" autocomplete="off">
+      </div>
+      <div class="hs-rule"></div>
+      <div class="hs-col">
+        <label class="hs-label" for="hs-date">Date</label>
+        <input id="hs-date" class="hs-input" type="date" autocomplete="off">
+      </div>
+      <div class="hs-rule"></div>
+      <div class="hs-col">
+        <label class="hs-label" for="hs-type">Venue Type</label>
+        <select id="hs-type" class="hs-input hs-select">
+          <option value="">All Types</option>
+          <option>Circuit</option>
+          <option>Airfield</option>
+          <option>Karting</option>
+          <option>Autocross</option>
+        </select>
+      </div>
+      <button type="submit" class="hs-submit">Search</button>
+    </form>
+    <div class="hero-actions">
+      <button class="btn-editorial primary" type="button">Browse All Venues</button>
+      <button class="btn-editorial secondary" type="button">List Your Track</button>
+    </div>
+    <div class="hero-pullquote">
+      <p class="pq-text">"Every empty track is a missed opportunity. TrackSwap closes the gap between idle asphalt and drivers who need it."</p>
+      <div class="pq-source">TrackSwap — Platform Thesis</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img src="https://images.pexels.com/photos/19151974/pexels-photo-19151974.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Racing driver wearing helmet" fetchpriority="high" width="1200" height="800">
+    <div class="hero-right-caption">
+      <div class="caption-text">Red Bull Racing — Circuit Photography — Pexels / Jonathan Borba</div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<div class="metrics-strip sr">
+  <div class="ms-item">
+    <div class="ms-num">214<span>+</span></div>
+    <div class="ms-label">Venues Across Europe</div>
+  </div>
+  <div class="ms-item">
+    <div class="ms-num">40<span>%</span></div>
+    <div class="ms-label">Participation Growth Since 2020</div>
+  </div>
+  <div class="ms-item">
+    <div class="ms-num">60<span>%</span></div>
+    <div class="ms-label">Average Venue Idle Capacity</div>
+  </div>
+  <div class="ms-item">
+    <div class="ms-num">15<span>%</span></div>
+    <div class="ms-label">Commission — Zero Upfront Cost</div>
+  </div>
+</div>
+
+<!-- PHOTO EDITORIAL -->
+<div class="photo-editorial sr">
+  <div class="pe-main">
+    <img src="https://images.pexels.com/photos/29255728/pexels-photo-29255728.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Aerial view of Interlagos race track" width="1400" height="933">
+    <div class="pe-overlay">
+      <p class="pe-overlay-text">"The night session at Navarra — the track is yours, the timing board is yours, the lap is yours."</p>
+    </div>
+  </div>
+  <div class="pe-side">
+    <div class="pe-sub">
+      <img src="https://images.pexels.com/photos/29255759/pexels-photo-29255759.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Formula 1 pit lane and garage scene" width="800" height="533">
+    </div>
+    <div class="pe-info">
+      <div class="pe-info-tag">Featured — Circuito de Jerez</div>
+      <div class="pe-info-title">4.4 km of Available Asphalt</div>
+      <div class="pe-info-sub">Jerez de la Frontera, Spain — From €320/session</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3-COL HOW IT WORKS -->
+<div class="section-rule sr">
+  <span class="rule-label">How It Works</span>
+  <span class="rule-line"></span>
+  <span class="rule-num">03 Steps</span>
+</div>
+<div class="content-3col sr">
+  <div class="col-article">
+    <div class="col-category">Step 01 — Search</div>
+    <h3 class="col-title">Find the Venue That Fits Your Day</h3>
+    <p class="col-body">Filter by date, location, surface type, noise limit, and budget. Discover circuits, airfields, and private tarmac that no other platform lists. The hidden supply you never knew existed, now bookable in seconds.</p>
+    <a href="#" class="col-more">Browse Venues</a>
+  </div>
+  <div class="col-article">
+    <div class="col-category">Step 02 — Book</div>
+    <h3 class="col-title">Reserve, Insure, and Comply in One Flow</h3>
+    <p class="col-body">Stripe-powered checkout in under three minutes. Add per-session on-track insurance with a single click. Complete your mandatory digital safety brief before arrival. Waivers signed. Everything documented.</p>
+    <a href="#" class="col-more">How Booking Works</a>
+  </div>
+  <div class="col-article">
+    <div class="col-category">Step 03 — Drive</div>
+    <h3 class="col-title">Show Up. The Track Is Yours.</h3>
+    <p class="col-body">Digital confirmation at the gate. No crowds, no organiser delays. Just you, your car, and the asphalt. Rate the venue after and help the community find the best hidden tracks across Europe.</p>
+    <a href="#" class="col-more">View the App</a>
+  </div>
+</div>
+
+<!-- FEATURE EDITORIAL -->
+<div class="section-rule sr">
+  <span class="rule-label">Platform Features</span>
+  <span class="rule-line"></span>
+  <span class="rule-num">04 Core Features</span>
+</div>
+<div class="feature-editorial sr">
+  <div class="fe-sidebar">
+    <div class="fe-sidebar-label">Infrastructure</div>
+    <h2 class="fe-sidebar-title">Built for the Serious Driver</h2>
+    <p class="fe-sidebar-body">Every feature exists to remove friction — for drivers who want to focus on the lap, and for venue owners who want to focus on the track. Not an event organiser. An infrastructure layer.</p>
+    <button class="fe-sidebar-btn" type="button">See All Features</button>
+  </div>
+  <div class="fe-grid">
+    <div class="fe-item">
+      <div class="fe-item-num" aria-hidden="true">01</div>
+      <h3 class="fe-item-title">Hidden Supply Unlocked</h3>
+      <p class="fe-item-body">Airfields, industrial lots, private karting tracks — venues at 60% idle capacity that no platform has made bookable. TrackSwap finds them, onboards them, and puts them on the map.</p>
+    </div>
+    <div class="fe-item">
+      <div class="fe-item-num" aria-hidden="true">02</div>
+      <h3 class="fe-item-title">Insurance at Checkout</h3>
+      <p class="fe-item-body">Per-session on-track damage and third-party liability cover, purchased at the point of booking with one click. Specialist motorsport insurer partners. No broker, no waiting.</p>
+    </div>
+    <div class="fe-item">
+      <div class="fe-item-num" aria-hidden="true">03</div>
+      <h3 class="fe-item-title">Digital Safety Compliance</h3>
+      <p class="fe-item-body">Mandatory video safety brief per venue, completed in-app before arrival. Digital waiver with e-signature. All data timestamped and stored. Venue liability reduced. No clipboard needed.</p>
+    </div>
+    <div class="fe-item">
+      <div class="fe-item-num" aria-hidden="true">04</div>
+      <h3 class="fe-item-title">Real-Time Noise Monitoring</h3>
+      <p class="fe-item-body">IoT dB sensors at venue boundaries feed a live dashboard. Auto-alerts before noise limits are breached. Enables more venues to stay open longer without compliance risk.</p>
+    </div>
+  </div>
+</div>
+
+<!-- VENUES -->
+<div class="venues-editorial sr">
+  <div class="ve-header">
+    <h2>Featured Venues This Week</h2>
+    <a href="#">Browse All 214 Venues</a>
+  </div>
+  <div class="ve-grid">
+    <div class="ve-card">
+      <div class="ve-img">
+        <img src="https://images.pexels.com/photos/29382704/pexels-photo-29382704.jpeg?auto=compress&cs=tinysrgb&w=600" alt="High-speed Formula 1 race track" loading="lazy" width="600" height="400">
+      </div>
+      <div class="ve-body">
+        <div class="ve-type">Permanent Circuit</div>
+        <h3 class="ve-name">Circuito de Jerez</h3>
+        <div class="ve-loc">Jerez de la Frontera, Spain · 4.4 km · 13 turns</div>
+        <div class="ve-foot">
+          <div class="ve-price">€320</div>
+          <button class="ve-book" type="button">Book Now</button>
+        </div>
+      </div>
+    </div>
+    <div class="ve-card">
+      <div class="ve-img">
+        <img src="https://images.pexels.com/photos/29115172/pexels-photo-29115172.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Lamborghini supercar on open airfield runway" loading="lazy" width="600" height="400">
+      </div>
+      <div class="ve-body">
+        <div class="ve-type">Airfield — Non-Traditional</div>
+        <h3 class="ve-name">Airfield Rota</h3>
+        <div class="ve-loc">Cadiz, Spain · 2.1 km tarmac runway</div>
+        <div class="ve-foot">
+          <div class="ve-price">€180</div>
+          <button class="ve-book" type="button">Book Now</button>
+        </div>
+      </div>
+    </div>
+    <div class="ve-card">
+      <div class="ve-img">
+        <img src="https://images.pexels.com/photos/5640496/pexels-photo-5640496.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Go-karts racing on karting track" loading="lazy" width="600" height="400">
+      </div>
+      <div class="ve-body">
+        <div class="ve-type">Karting Circuit</div>
+        <h3 class="ve-name">Karting Lloret</h3>
+        <div class="ve-loc">Girona, Spain · 1.2 km · Outdoor</div>
+        <div class="ve-foot">
+          <div class="ve-price">€95</div>
+          <button class="ve-book" type="button">Book Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DUAL -->
+<div class="dual-editorial sr">
+  <div class="de-panel light">
+    <div class="de-label">For Drivers</div>
+    <h2 class="de-title">Stop Settling for Sold-Out Dates</h2>
+    <ul class="de-list">
+      <li>Search by date, location, and venue type</li>
+      <li>Book in under 3 minutes — instant confirmation</li>
+      <li>Per-session insurance at checkout, one click</li>
+      <li>Digital safety brief — no paperwork on arrival</li>
+      <li>Access venues no other platform lists</li>
+      <li>Cancel up to 48 hours before with full refund</li>
+    </ul>
+    <button class="de-btn" type="button">Find a Track Today</button>
+  </div>
+  <div class="de-panel dark">
+    <div class="de-label">For Venue Owners</div>
+    <h2 class="de-title">Your Empty Days Are Revenue</h2>
+    <ul class="de-list">
+      <li>List for free — 15% commission, no upfront cost</li>
+      <li>Automated payouts via Stripe Connect</li>
+      <li>Compliance and safety handled by the platform</li>
+      <li>Optional noise monitoring dashboard included</li>
+      <li>Average venue earns €4,200/month in new revenue</li>
+      <li>No subscription, no lock-in, cancel anytime</li>
+    </ul>
+    <button class="de-btn" type="button">List Your Venue</button>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testi-editorial sr">
+  <h2 class="te-header">From the Community</h2>
+  <div class="te-grid">
+    <div class="te-item">
+      <p class="te-quote">Found a private airfield 40 minutes from home I had no idea existed. The tarmac was immaculate. Booked it for a Tuesday morning — track completely empty.</p>
+      <div class="te-rule"></div>
+      <div class="te-name">Marc Riera</div>
+      <div class="te-role">GT3 Driver — Barcelona</div>
+    </div>
+    <div class="te-item">
+      <p class="te-quote">We were empty on Wednesdays and Thursdays every week. TrackSwap filled those slots within a month. Commission-only means zero risk on our side — they only earn when we earn.</p>
+      <div class="te-rule"></div>
+      <div class="te-name">Javier Llorente</div>
+      <div class="te-role">Circuit Owner — Navarra</div>
+    </div>
+    <div class="te-item">
+      <p class="te-quote">The insurance integration is the thing. Cover my car at checkout, no separate broker. It removes the last excuse not to go to the track. I go twice a month now instead of twice a year.</p>
+      <div class="te-rule"></div>
+      <div class="te-name">Sophie Kerr</div>
+      <div class="te-role">Track Day Enthusiast — London</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-editorial sr">
+  <div class="ce-content">
+    <div class="ce-issue">TrackSwap — Now Live in UK and Spain</div>
+    <h2 class="ce-title">The Track<br>Is <em>Waiting.</em></h2>
+    <p class="ce-body">214 venues available today. No phone calls, no waitlists. Find your track, book your session, drive.</p>
+    <div class="ce-actions">
+      <button class="btn-editorial primary" type="button">Browse Venues</button>
+      <button class="btn-editorial secondary" type="button" style="color:rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2);">List Your Track</button>
+    </div>
+  </div>
+  <div class="ce-img">
+    <img src="https://images.pexels.com/photos/29327972/pexels-photo-29327972.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Formula 1 pit stop crew in action" width="800" height="533">
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-grid">
+    <div>
+      <div class="ft-logo">TrackSwap</div>
+      <p class="ft-desc">The marketplace connecting drivers with circuits, airfields, and private venues across Europe. Every empty track is an opportunity.</p>
+    </div>
+    <div>
+      <div class="ft-head">Platform</div>
+      <ul class="ft-links">
+        <li><a href="#">Browse Venues</a></li>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">Insurance</a></li>
+        <li><a href="#">Safety Briefing</a></li>
+        <li><a href="#">Pricing</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="ft-head">For Owners</div>
+      <ul class="ft-links">
+        <li><a href="#">List Your Venue</a></li>
+        <li><a href="#">Owner Dashboard</a></li>
+        <li><a href="#">Noise Monitoring</a></li>
+        <li><a href="#">Certification</a></li>
+        <li><a href="#">Revenue Calculator</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="ft-head">Company</div>
+      <ul class="ft-links">
+        <li><a href="#">About</a></li>
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Investors</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <span class="ft-copy">TrackSwap &copy; 2026 — All rights reserved</span>
+    <span class="ft-copy">Privacy Policy &nbsp;·&nbsp; Terms of Service &nbsp;·&nbsp; Cookie Settings</span>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
