@@ -413,6 +413,50 @@
     font-family: var(--mono); font-size: 10px; color: var(--grey); letter-spacing: 1px;
   }
 
+  /* INTERACTIVE DEMO */
+  .table-action {
+    padding: 8px 12px; background: var(--orange); color: var(--white); border: none;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  }
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 500;
+    display: none; align-items: center; justify-content: center;
+    padding: 24px; background: rgba(0,0,0,0.76); backdrop-filter: blur(8px);
+  }
+  .modal-backdrop.open { display: flex; }
+  .demo-modal {
+    width: min(640px, 100%); max-height: min(760px, 92vh); overflow: auto;
+    background: #080808; border: 2px solid var(--orange);
+    box-shadow: 16px 16px 0 rgba(255,69,0,0.18);
+  }
+  .modal-head { display: flex; justify-content: space-between; gap: 24px; padding: 24px; border-bottom: 2px solid var(--border); }
+  .modal-kicker { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+  .modal-title { font-family: var(--display); font-size: 46px; letter-spacing: 3px; text-transform: uppercase; line-height: 0.95; }
+  .modal-close { width: 40px; height: 40px; border: 2px solid var(--border); background: transparent; color: var(--white); cursor: pointer; font-size: 22px; }
+  .modal-body { padding: 24px; display: grid; gap: 18px; }
+  .demo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .demo-field { display: grid; gap: 8px; }
+  .demo-field label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--grey); text-transform: uppercase; }
+  .demo-field input, .demo-field select, .demo-field textarea {
+    width: 100%; background: #101010; border: 2px solid var(--border);
+    color: var(--white); font: 14px var(--body); padding: 13px 14px;
+  }
+  .demo-field textarea { resize: vertical; min-height: 92px; }
+  .slot-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .slot-btn {
+    padding: 10px 14px; background: #101010; border: 2px solid var(--border);
+    color: var(--grey); font-family: var(--mono); font-size: 12px; cursor: pointer;
+  }
+  .slot-btn.active { border-color: var(--orange); color: var(--orange); background: #1a0900; }
+  .summary-box { border: 2px solid rgba(255,69,0,0.45); background: #140700; padding: 16px; color: var(--grey); font-size: 14px; line-height: 1.6; }
+  .toast {
+    position: fixed; right: 24px; bottom: 24px; z-index: 700;
+    display: none; max-width: 380px; padding: 14px 16px;
+    background: var(--orange); color: var(--white); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+    box-shadow: 8px 8px 0 rgba(255,255,255,0.12);
+  }
+  .toast.open { display: block; }
+
   /* ANIMATIONS */
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -449,6 +493,7 @@
     .testi-item { border-right: none; }
     .venue-table { font-size: 12px; }
     .venue-table th, .venue-table td { padding: 10px 12px; }
+    .demo-grid { grid-template-columns: 1fr; }
     footer { grid-template-columns: 1fr 1fr; }
     .footer-panel { padding: 32px 20px; }
     .cta-actions { flex-direction: column; align-items: center; }
@@ -472,17 +517,17 @@
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
 <nav>
-  <a href="#" class="nav-logo-block">TRACKSWAP</a>
+  <a href="#main-content" class="nav-logo-block">TRACKSWAP</a>
   <div class="nav-links">
-    <a href="#">Venues</a>
-    <a href="#">How It Works</a>
-    <a href="#">Owners</a>
-    <a href="#">Insurance</a>
-    <a href="#">Community</a>
+    <a href="#venues">Venues</a>
+    <a href="#process">How It Works</a>
+    <a href="#owners">Owners</a>
+    <a href="#features">Insurance</a>
+    <a href="#community">Community</a>
   </div>
   <div class="nav-right">
-    <button class="nav-btn" type="button">Sign In</button>
-    <button class="nav-btn primary" type="button">List Your Track</button>
+    <button class="nav-btn" type="button" data-action="open-signin">Sign In</button>
+    <button class="nav-btn primary" type="button" data-action="open-owner">List Your Track</button>
   </div>
 </nav>
 
@@ -521,7 +566,7 @@
       <span class="accent">Track.</span>
     </h1>
     <p class="hero-body">The only marketplace that discovers, onboards, and makes bookable every type of driving venue — from FIA circuits to private airfields. Book in minutes. Arrive. Drive.</p>
-    <form class="hero-search" role="search" onsubmit="return false;">
+    <form class="hero-search" role="search" data-action="search-venues">
       <div class="hs-field">
         <label class="hs-label" for="hs-location">Location</label>
         <input id="hs-location" class="hs-input" type="text" placeholder="UK, Spain, Europe…" autocomplete="off">
@@ -545,8 +590,8 @@
       <button type="submit" class="hs-submit">Search</button>
     </form>
     <div class="hero-actions">
-      <button class="btn-brutal fill" type="button">Browse All Venues</button>
-      <button class="btn-brutal outline" type="button">List Your Track</button>
+      <button class="btn-brutal fill" type="button" data-action="scroll-venues">Browse All Venues</button>
+      <button class="btn-brutal outline" type="button" data-action="open-owner">List Your Track</button>
     </div>
   </div>
   <div class="hero-right">
@@ -589,7 +634,7 @@
 </div>
 
 <!-- HOW IT WORKS -->
-<div class="section-header reveal">
+<div class="section-header reveal" id="process">
   <div class="sh-index">02 — Process</div>
   <h2 class="sh-title">How TrackSwap Works</h2>
 </div>
@@ -615,7 +660,7 @@
 </div>
 
 <!-- VENUES TABLE -->
-<div class="section-header reveal">
+<div class="section-header reveal" id="venues">
   <div class="sh-index">03 — Venues</div>
   <h2 class="sh-title">Featured Listings</h2>
 </div>
@@ -630,6 +675,7 @@
         <th scope="col">Noise Limit</th>
         <th scope="col">Availability</th>
         <th scope="col">From</th>
+        <th scope="col">Action</th>
       </tr>
     </thead>
     <tbody>
@@ -641,6 +687,7 @@
         <td>98 dB</td>
         <td>Weekdays + Weekends</td>
         <td class="price-cell">€320 / session</td>
+        <td><button class="table-action" type="button" data-action="open-booking" data-venue-id="jerez">Book</button></td>
       </tr>
       <tr>
         <td class="venue-name-cell">Airfield Rota</td>
@@ -650,6 +697,7 @@
         <td>No limit</td>
         <td>Weekdays Only</td>
         <td class="price-cell">€180 / session</td>
+        <td><button class="table-action" type="button" data-action="open-booking" data-venue-id="rota">Book</button></td>
       </tr>
       <tr>
         <td class="venue-name-cell">Karting Lloret</td>
@@ -659,6 +707,7 @@
         <td>85 dB</td>
         <td>All Week</td>
         <td class="price-cell">€95 / session</td>
+        <td><button class="table-action" type="button" data-action="open-booking" data-venue-id="lloret">Book</button></td>
       </tr>
       <tr>
         <td class="venue-name-cell">Industrial Lot BCN</td>
@@ -668,6 +717,7 @@
         <td>90 dB</td>
         <td>Weekends</td>
         <td class="price-cell">€120 / session</td>
+        <td><button class="table-action" type="button" data-action="open-booking" data-venue-id="lot">Book</button></td>
       </tr>
       <tr>
         <td class="venue-name-cell">Circuito de Navarra</td>
@@ -677,13 +727,14 @@
         <td>100 dB</td>
         <td>All Week</td>
         <td class="price-cell">€260 / session</td>
+        <td><button class="table-action" type="button" data-action="open-booking" data-venue-id="navarra">Book</button></td>
       </tr>
     </tbody>
   </table>
 </div>
 
 <!-- FEATURES -->
-<div class="section-header reveal">
+<div class="section-header reveal" id="features">
   <div class="sh-index">04 — Platform</div>
   <h2 class="sh-title">Core Infrastructure</h2>
 </div>
@@ -711,7 +762,7 @@
 </div>
 
 <!-- SPLIT PANEL -->
-<div class="split-panel reveal">
+<div class="split-panel reveal" id="owners">
   <div class="sp-panel">
     <div class="sp-label">For Drivers</div>
     <h2 class="sp-title">Stop Settling for Sold-Out Dates</h2>
@@ -723,7 +774,7 @@
       <li>Airfields and private venues no other platform lists</li>
       <li>Cancel up to 48h before with full refund</li>
     </ul>
-    <button class="btn-brutal-block" type="button">Find a Track Today</button>
+    <button class="btn-brutal-block" type="button" data-action="open-booking" data-venue-id="jerez">Find a Track Today</button>
   </div>
   <div class="sp-panel">
     <div class="sp-label">For Venue Owners</div>
@@ -736,12 +787,12 @@
       <li>Average venue earns €4,200/month in new revenue</li>
       <li>No subscription, no lock-in, cancel anytime</li>
     </ul>
-    <button class="btn-brutal-block" type="button">List Your Venue</button>
+    <button class="btn-brutal-block" type="button" data-action="open-owner">List Your Venue</button>
   </div>
 </div>
 
 <!-- TESTIMONIALS -->
-<div class="section-header reveal">
+<div class="section-header reveal" id="community">
   <div class="sh-index">05 — Community</div>
   <h2 class="sh-title">From Real Drivers</h2>
 </div>
@@ -769,12 +820,94 @@
   <h2 class="cta-title">The Track<br>Is Waiting.</h2>
   <p class="cta-body">214 venues. Available today. No phone calls, no waitlists. Find your track and drive.</p>
   <div class="cta-actions">
-    <button class="btn-brutal fill" type="button" style="padding:18px 56px; font-size:13px;">Browse Venues</button>
-    <button class="btn-brutal outline" type="button" style="padding:18px 56px; font-size:13px; border-left: none;">List Your Track</button>
+    <button class="btn-brutal fill" type="button" data-action="scroll-venues" style="padding:18px 56px; font-size:13px;">Browse Venues</button>
+    <button class="btn-brutal outline" type="button" data-action="open-owner" style="padding:18px 56px; font-size:13px; border-left: none;">List Your Track</button>
   </div>
 </div>
 
 </main>
+
+<div class="modal-backdrop" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Demo booking</div>
+        <h2 class="modal-title" id="bookingTitle">Reserve Track Time</h2>
+      </div>
+      <button class="modal-close" type="button" data-action="close-modal" aria-label="Close booking dialog">&times;</button>
+    </div>
+    <form class="modal-body" id="bookingForm">
+      <div class="summary-box" id="bookingSummary">Choose a venue to start a fake reservation.</div>
+      <div class="demo-grid">
+        <div class="demo-field">
+          <label for="bookingVenue">Venue</label>
+          <select id="bookingVenue" name="venue"></select>
+        </div>
+        <div class="demo-field">
+          <label for="bookingDate">Date</label>
+          <input id="bookingDate" name="date" type="date" required>
+        </div>
+      </div>
+      <div class="demo-field">
+        <label>Available slots</label>
+        <div class="slot-row" id="bookingSlots"></div>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-field">
+          <label for="bookingCar">Vehicle</label>
+          <input id="bookingCar" name="car" type="text" value="Porsche 911 GT3" required>
+        </div>
+        <div class="demo-field">
+          <label for="bookingInsurance">Insurance</label>
+          <select id="bookingInsurance" name="insurance">
+            <option value="Standard cover">Standard cover · €45</option>
+            <option value="Track damage cover">Track damage cover · €95</option>
+            <option value="I will bring my own">I will bring my own</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-brutal fill" type="submit">Confirm Demo Reservation</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="ownerModal" role="dialog" aria-modal="true" aria-labelledby="ownerTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Venue owners</div>
+        <h2 class="modal-title" id="ownerTitle">List Your Venue</h2>
+      </div>
+      <button class="modal-close" type="button" data-action="close-modal" aria-label="Close owner dialog">&times;</button>
+    </div>
+    <form class="modal-body" id="ownerForm">
+      <div class="demo-grid">
+        <div class="demo-field"><label for="ownerVenue">Venue name</label><input id="ownerVenue" required placeholder="Circuit or airfield name"></div>
+        <div class="demo-field"><label for="ownerEmail">Email</label><input id="ownerEmail" type="email" required placeholder="owner@venue.com"></div>
+      </div>
+      <div class="demo-field"><label for="ownerNotes">Capacity notes</label><textarea id="ownerNotes" placeholder="Available days, noise limits, vehicle rules"></textarea></div>
+      <button class="btn-brutal fill" type="submit">Request Demo Onboarding</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="signinModal" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Driver account</div>
+        <h2 class="modal-title" id="signinTitle">Sign In</h2>
+      </div>
+      <button class="modal-close" type="button" data-action="close-modal" aria-label="Close sign in dialog">&times;</button>
+    </div>
+    <form class="modal-body" id="signinForm">
+      <div class="demo-field"><label for="signinEmail">Email</label><input id="signinEmail" type="email" required placeholder="driver@trackswap.demo"></div>
+      <button class="btn-brutal fill" type="submit">Continue Demo Session</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- FOOTER -->
 <footer>
@@ -785,31 +918,31 @@
   <div class="footer-panel">
     <div class="footer-head">Platform</div>
     <ul class="footer-links">
-      <li><a href="#">Browse Venues</a></li>
-      <li><a href="#">How It Works</a></li>
-      <li><a href="#">Insurance</a></li>
-      <li><a href="#">Safety Briefing</a></li>
-      <li><a href="#">Pricing</a></li>
+      <li><a href="#venues">Browse Venues</a></li>
+      <li><a href="#process">How It Works</a></li>
+      <li><a href="#features">Insurance</a></li>
+      <li><a href="#features">Safety Briefing</a></li>
+      <li><a href="#venues">Pricing</a></li>
     </ul>
   </div>
   <div class="footer-panel">
     <div class="footer-head">For Owners</div>
     <ul class="footer-links">
-      <li><a href="#">List Your Venue</a></li>
-      <li><a href="#">Owner Dashboard</a></li>
-      <li><a href="#">Noise Monitoring</a></li>
-      <li><a href="#">Certification</a></li>
-      <li><a href="#">Revenue Calculator</a></li>
+      <li><a href="#owners" data-action="open-owner">List Your Venue</a></li>
+      <li><a href="#owners" data-action="open-owner">Owner Dashboard</a></li>
+      <li><a href="#features">Noise Monitoring</a></li>
+      <li><a href="#features">Certification</a></li>
+      <li><a href="#owners" data-action="open-owner">Revenue Calculator</a></li>
     </ul>
   </div>
   <div class="footer-panel">
     <div class="footer-head">Company</div>
     <ul class="footer-links">
-      <li><a href="#">About</a></li>
-      <li><a href="#">Community</a></li>
-      <li><a href="#">Press</a></li>
-      <li><a href="#">Investors</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="#main-content">About</a></li>
+      <li><a href="#community">Community</a></li>
+      <li><a href="#community">Press</a></li>
+      <li><a href="#owners">Investors</a></li>
+      <li><a href="#owners" data-action="open-owner">Contact</a></li>
     </ul>
   </div>
   <div class="footer-bottom">
@@ -819,6 +952,128 @@
 </footer>
 
 <script>
+  const venues = {
+    jerez: { name: 'Circuito de Jerez', price: 320, slots: ['09:00', '13:00', '17:00'] },
+    rota: { name: 'Airfield Rota', price: 180, slots: ['08:00', '11:00', '15:00'] },
+    lloret: { name: 'Karting Lloret', price: 95, slots: ['10:00', '12:00', '14:00', '16:00'] },
+    lot: { name: 'Industrial Lot BCN', price: 120, slots: ['09:00', '14:00'] },
+    navarra: { name: 'Circuito de Navarra', price: 260, slots: ['08:00', '11:00', '15:00'] }
+  };
+  let activeVenueId = 'jerez';
+  let activeSlot = venues[activeVenueId].slots[0];
+
+  const toast = document.getElementById('toast');
+  const bookingModal = document.getElementById('bookingModal');
+  const ownerModal = document.getElementById('ownerModal');
+  const signinModal = document.getElementById('signinModal');
+  const bookingVenue = document.getElementById('bookingVenue');
+  const bookingDate = document.getElementById('bookingDate');
+  const bookingSlots = document.getElementById('bookingSlots');
+  const bookingSummary = document.getElementById('bookingSummary');
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('open');
+    window.clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(() => toast.classList.remove('open'), 3200);
+  }
+
+  function openModal(modal) {
+    modal.classList.add('open');
+    const focusTarget = modal.querySelector('input, select, button');
+    if (focusTarget) focusTarget.focus();
+  }
+
+  function closeModals() {
+    document.querySelectorAll('.modal-backdrop').forEach(modal => modal.classList.remove('open'));
+  }
+
+  function setBookingVenue(id) {
+    activeVenueId = venues[id] ? id : 'jerez';
+    activeSlot = venues[activeVenueId].slots[0];
+    bookingVenue.value = activeVenueId;
+    renderSlots();
+  }
+
+  function renderSlots() {
+    const venue = venues[activeVenueId];
+    bookingSlots.innerHTML = '';
+    venue.slots.forEach(slot => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `slot-btn${slot === activeSlot ? ' active' : ''}`;
+      btn.textContent = slot;
+      btn.setAttribute('aria-pressed', slot === activeSlot ? 'true' : 'false');
+      btn.addEventListener('click', () => {
+        activeSlot = slot;
+        renderSlots();
+      });
+      bookingSlots.appendChild(btn);
+    });
+    bookingSummary.textContent = `${venue.name} // €${venue.price} per session // ${activeSlot} selected`;
+  }
+
+  function openBooking(id = activeVenueId) {
+    setBookingVenue(id);
+    openModal(bookingModal);
+  }
+
+  Object.entries(venues).forEach(([id, venue]) => {
+    const option = document.createElement('option');
+    option.value = id;
+    option.textContent = venue.name;
+    bookingVenue.appendChild(option);
+  });
+  const tomorrow = new Date(Date.now() + 86400000);
+  bookingDate.value = tomorrow.toISOString().slice(0, 10);
+  bookingVenue.addEventListener('change', () => setBookingVenue(bookingVenue.value));
+  setBookingVenue(activeVenueId);
+
+  document.addEventListener('click', event => {
+    const trigger = event.target.closest('[data-action]');
+    if (!trigger) return;
+    const action = trigger.dataset.action;
+    if (action === 'open-booking') openBooking(trigger.dataset.venueId);
+    if (action === 'open-owner') openModal(ownerModal);
+    if (action === 'open-signin') openModal(signinModal);
+    if (action === 'close-modal') closeModals();
+    if (action === 'scroll-venues') document.getElementById('venues').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.querySelectorAll('.modal-backdrop').forEach(modal => {
+    modal.addEventListener('click', event => {
+      if (event.target === modal) closeModals();
+    });
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeModals();
+  });
+
+  document.querySelector('[data-action="search-venues"]').addEventListener('submit', event => {
+    event.preventDefault();
+    document.getElementById('venues').scrollIntoView({ behavior: 'smooth' });
+    showToast('SEARCH COMPLETE // DEMO LISTINGS READY');
+  });
+
+  document.getElementById('bookingForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const venue = venues[activeVenueId];
+    closeModals();
+    showToast(`RESERVED // ${venue.name} // ${bookingDate.value} // ${activeSlot} // TS-${Date.now().toString().slice(-5)}`);
+  });
+
+  document.getElementById('ownerForm').addEventListener('submit', event => {
+    event.preventDefault();
+    closeModals();
+    showToast('OWNER ONBOARDING REQUEST CAPTURED // DEMO');
+  });
+
+  document.getElementById('signinForm').addEventListener('submit', event => {
+    event.preventDefault();
+    closeModals();
+    showToast('DRIVER DEMO SESSION OPENED');
+  });
+
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.06 });

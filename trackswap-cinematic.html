@@ -342,6 +342,45 @@
   .footer-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 24px; }
   .footer-copy { font-size: 12px; color: var(--text3); font-family: var(--mono); }
 
+  /* INTERACTIVE DEMO */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 500;
+    display: none; align-items: center; justify-content: center;
+    padding: 24px; background: rgba(0,0,0,0.72); backdrop-filter: blur(12px);
+  }
+  .modal-backdrop.open { display: flex; }
+  .demo-modal {
+    width: min(620px, 100%); max-height: min(760px, 92vh); overflow: auto;
+    background: #111113; border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 8px; box-shadow: 0 28px 90px rgba(0,0,0,0.45);
+  }
+  .modal-head { display: flex; justify-content: space-between; gap: 24px; padding: 24px; border-bottom: 1px solid var(--border); }
+  .modal-kicker { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+  .modal-title { font-family: Anton, sans-serif; font-size: 34px; text-transform: uppercase; line-height: 1; }
+  .modal-close { width: 36px; height: 36px; border: 1px solid var(--border); background: transparent; color: var(--text1); border-radius: 4px; cursor: pointer; font-size: 20px; }
+  .modal-body { padding: 24px; display: grid; gap: 18px; }
+  .demo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .demo-field { display: grid; gap: 8px; }
+  .demo-field label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; }
+  .demo-field input, .demo-field select, .demo-field textarea {
+    width: 100%; background: #0b0b0c; border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text1); font: 14px 'DM Sans', sans-serif; padding: 13px 14px;
+  }
+  .demo-field textarea { resize: vertical; min-height: 92px; }
+  .slot-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .slot-btn {
+    padding: 10px 14px; background: #0b0b0c; border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text2); font-family: var(--mono); font-size: 12px; cursor: pointer;
+  }
+  .slot-btn.active { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+  .summary-box { border: 1px solid rgba(255,69,0,0.25); background: var(--orange-dim); border-radius: 6px; padding: 16px; color: var(--text2); font-size: 14px; line-height: 1.6; }
+  .toast {
+    position: fixed; right: 24px; bottom: 24px; z-index: 700;
+    display: none; max-width: 360px; padding: 14px 16px; border-radius: 6px;
+    background: var(--orange); color: white; font-weight: 600; box-shadow: 0 14px 40px rgba(0,0,0,0.32);
+  }
+  .toast.open { display: block; }
+
   /* ANIMATIONS */
   @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -375,6 +414,7 @@
     .hs-sep { width: 100%; height: 1px; }
     .hs-btn { min-height: 48px; justify-content: center; width: 100%; }
     .hero-actions { flex-direction: column; align-items: flex-start; }
+    .demo-grid { grid-template-columns: 1fr; }
     .metrics { grid-template-columns: 1fr 1fr; }
     .metric-item:nth-child(2n) { border-right: none; }
     .metric-item:nth-child(3), .metric-item:nth-child(4) { border-top: 1px solid var(--border); }
@@ -407,17 +447,17 @@
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
 <nav>
-  <a href="#" class="nav-logo">TRACKSWAP</a>
+  <a href="#main-content" class="nav-logo">TRACKSWAP</a>
   <div class="nav-links">
-    <a href="#">Explore Venues</a>
-    <a href="#">How It Works</a>
-    <a href="#">For Venue Owners</a>
-    <a href="#">Insurance</a>
-    <a href="#">Community</a>
+    <a href="#venues">Explore Venues</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#owners">For Venue Owners</a>
+    <a href="#features">Insurance</a>
+    <a href="#community">Community</a>
   </div>
   <div class="nav-cta">
-    <button class="btn-ghost" type="button">Sign In</button>
-    <button class="btn-orange" type="button">List Your Track</button>
+    <button class="btn-ghost" type="button" data-action="open-signin">Sign In</button>
+    <button class="btn-orange" type="button" data-action="open-owner">List Your Track</button>
   </div>
 </nav>
 
@@ -431,7 +471,7 @@
     <div class="hero-tag">The Track Day Marketplace</div>
     <h1 class="hero-title">Find Your<br><span>Track.</span><br>Own The Lap.</h1>
     <p class="hero-sub">Discover circuits, airfields, and private venues across Europe. Book a session in minutes. Arrive, drive, repeat.</p>
-    <form class="hero-search" role="search" onsubmit="return false;">
+    <form class="hero-search" role="search" data-action="search-venues">
       <div class="hs-group">
         <label class="hs-label" for="hs-location">Where</label>
         <input id="hs-location" class="hs-input" type="text" placeholder="UK, Spain, Europe…" autocomplete="off">
@@ -458,8 +498,8 @@
       </button>
     </form>
     <div class="hero-actions">
-      <button class="btn-primary" type="button">Browse All Venues</button>
-      <button class="btn-secondary" type="button">List Your Venue</button>
+      <button class="btn-primary" type="button" data-action="scroll-venues">Browse All Venues</button>
+      <button class="btn-secondary" type="button" data-action="open-owner">List Your Venue</button>
     </div>
   </div>
   <div class="hero-card" aria-label="Available venues this week">
@@ -556,7 +596,7 @@
 </div>
 
 <!-- HOW IT WORKS -->
-<section class="section scroll-reveal">
+<section class="section scroll-reveal" id="how-it-works">
   <div class="section-tag">The Process</div>
   <h2 class="section-title">From Search<br>to Asphalt</h2>
   <p class="section-sub">Three steps between you and a clear track. No phone calls, no waitlists, no paperwork.</p>
@@ -583,7 +623,7 @@
 </section>
 
 <!-- FEATURES -->
-<section class="section scroll-reveal" style="padding-top:0;">
+<section class="section scroll-reveal" id="features" style="padding-top:0;">
   <div class="section-tag">Platform Features</div>
   <h2 class="section-title">Infrastructure<br>for the Serious Driver</h2>
   <div class="features-grid">
@@ -619,7 +659,7 @@
 </section>
 
 <!-- VENUES SHOWCASE -->
-<section class="section scroll-reveal" style="padding-top:0; background: var(--dark);">
+<section class="section scroll-reveal" id="venues" style="padding-top:0; background: var(--dark);">
   <div class="section-tag">Featured Venues</div>
   <h2 class="section-title">Your Next<br>Track Day</h2>
   <div class="venues-grid">
@@ -636,7 +676,7 @@
             <div class="venue-price-label">From per session</div>
             <div class="venue-price-value">€320</div>
           </div>
-          <button class="btn-orange" type="button" style="font-size:12px; padding:8px 16px;">Book</button>
+          <button class="btn-orange" type="button" data-action="open-booking" data-venue-id="jerez" style="font-size:12px; padding:8px 16px;">Book</button>
         </div>
       </div>
     </div>
@@ -653,7 +693,7 @@
             <div class="venue-price-label">From per session</div>
             <div class="venue-price-value">€180</div>
           </div>
-          <button class="btn-orange" type="button" style="font-size:12px; padding:8px 16px;">Book</button>
+          <button class="btn-orange" type="button" data-action="open-booking" data-venue-id="rota" style="font-size:12px; padding:8px 16px;">Book</button>
         </div>
       </div>
     </div>
@@ -670,18 +710,18 @@
             <div class="venue-price-label">From per session</div>
             <div class="venue-price-value">€95</div>
           </div>
-          <button class="btn-orange" type="button" style="font-size:12px; padding:8px 16px;">Book</button>
+          <button class="btn-orange" type="button" data-action="open-booking" data-venue-id="lloret" style="font-size:12px; padding:8px 16px;">Book</button>
         </div>
       </div>
     </div>
   </div>
   <div style="text-align:center; margin-top:40px;">
-    <button class="btn-secondary" type="button" style="padding:14px 36px;">Browse All 214 Venues</button>
+    <button class="btn-secondary" type="button" data-action="scroll-venues" style="padding:14px 36px;">Browse All 214 Venues</button>
   </div>
 </section>
 
 <!-- DUAL -->
-<div class="dual-section scroll-reveal">
+<div class="dual-section scroll-reveal" id="owners">
   <div class="dual-panel dark">
     <div class="dual-label">For Drivers</div>
     <h2 class="dual-title">Stop Settling For<br>Sold-Out Dates</h2>
@@ -693,7 +733,7 @@
       <li>Access airfields and private venues no one else lists</li>
       <li>Cancel up to 48 hours before with full refund</li>
     </ul>
-    <button class="dual-cta" type="button">Find a Track Today</button>
+    <button class="dual-cta" type="button" data-action="open-booking" data-venue-id="jerez">Find a Track Today</button>
   </div>
   <div class="dual-panel darker">
     <div class="dual-label">For Venue Owners</div>
@@ -706,12 +746,12 @@
       <li>Optional noise monitoring dashboard included</li>
       <li>Average venue earns €4,200/month in additional revenue</li>
     </ul>
-    <button class="dual-cta" type="button">List Your Venue</button>
+    <button class="dual-cta" type="button" data-action="open-owner">List Your Venue</button>
   </div>
 </div>
 
 <!-- TESTIMONIALS -->
-<section class="section scroll-reveal">
+<section class="section scroll-reveal" id="community">
   <div class="section-tag">From the Community</div>
   <h2 class="section-title">Drivers &amp;<br>Venue Owners</h2>
   <div class="testimonials-grid">
@@ -754,12 +794,94 @@
   <h2 class="cta-title">The Track<br>Is Waiting</h2>
   <p class="cta-sub">214 venues. Available today. No phone calls, no waitlists. Just find your track and drive.</p>
   <div class="cta-actions">
-    <button class="btn-primary" type="button" style="padding:16px 48px; font-size:16px;">Browse Venues</button>
-    <button class="btn-secondary" type="button" style="padding:16px 48px; font-size:16px;">List Your Track</button>
+    <button class="btn-primary" type="button" data-action="scroll-venues" style="padding:16px 48px; font-size:16px;">Browse Venues</button>
+    <button class="btn-secondary" type="button" data-action="open-owner" style="padding:16px 48px; font-size:16px;">List Your Track</button>
   </div>
 </section>
 
 </main>
+
+<div class="modal-backdrop" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Demo booking</div>
+        <h2 class="modal-title" id="bookingTitle">Reserve Track Time</h2>
+      </div>
+      <button class="modal-close" type="button" data-action="close-modal" aria-label="Close booking dialog">&times;</button>
+    </div>
+    <form class="modal-body" id="bookingForm">
+      <div class="summary-box" id="bookingSummary">Choose a venue to start a fake reservation.</div>
+      <div class="demo-grid">
+        <div class="demo-field">
+          <label for="bookingVenue">Venue</label>
+          <select id="bookingVenue" name="venue"></select>
+        </div>
+        <div class="demo-field">
+          <label for="bookingDate">Date</label>
+          <input id="bookingDate" name="date" type="date" required>
+        </div>
+      </div>
+      <div class="demo-field">
+        <label>Available slots</label>
+        <div class="slot-row" id="bookingSlots"></div>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-field">
+          <label for="bookingCar">Vehicle</label>
+          <input id="bookingCar" name="car" type="text" value="Porsche 911 GT3" required>
+        </div>
+        <div class="demo-field">
+          <label for="bookingInsurance">Insurance</label>
+          <select id="bookingInsurance" name="insurance">
+            <option value="Standard cover">Standard cover · €45</option>
+            <option value="Track damage cover">Track damage cover · €95</option>
+            <option value="I will bring my own">I will bring my own</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" type="submit">Confirm Demo Reservation</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="ownerModal" role="dialog" aria-modal="true" aria-labelledby="ownerTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Venue owners</div>
+        <h2 class="modal-title" id="ownerTitle">List Your Venue</h2>
+      </div>
+      <button class="modal-close" type="button" data-action="close-modal" aria-label="Close owner dialog">&times;</button>
+    </div>
+    <form class="modal-body" id="ownerForm">
+      <div class="demo-grid">
+        <div class="demo-field"><label for="ownerVenue">Venue name</label><input id="ownerVenue" required placeholder="Circuit or airfield name"></div>
+        <div class="demo-field"><label for="ownerEmail">Email</label><input id="ownerEmail" type="email" required placeholder="owner@venue.com"></div>
+      </div>
+      <div class="demo-field"><label for="ownerNotes">Capacity notes</label><textarea id="ownerNotes" placeholder="Available days, noise limits, vehicle rules"></textarea></div>
+      <button class="btn-primary" type="submit">Request Demo Onboarding</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="signinModal" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Driver account</div>
+        <h2 class="modal-title" id="signinTitle">Sign In</h2>
+      </div>
+      <button class="modal-close" type="button" data-action="close-modal" aria-label="Close sign in dialog">&times;</button>
+    </div>
+    <form class="modal-body" id="signinForm">
+      <div class="demo-field"><label for="signinEmail">Email</label><input id="signinEmail" type="email" required placeholder="driver@trackswap.demo"></div>
+      <button class="btn-primary" type="submit">Continue Demo Session</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- FOOTER -->
 <footer>
@@ -771,31 +893,31 @@
     <div class="footer-col">
       <h4>Platform</h4>
       <ul>
-        <li><a href="#">Browse Venues</a></li>
-        <li><a href="#">How It Works</a></li>
-        <li><a href="#">Insurance</a></li>
-        <li><a href="#">Safety Briefing</a></li>
-        <li><a href="#">Pricing</a></li>
+        <li><a href="#venues">Browse Venues</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#features">Insurance</a></li>
+        <li><a href="#features">Safety Briefing</a></li>
+        <li><a href="#venues">Pricing</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>For Owners</h4>
       <ul>
-        <li><a href="#">List Your Venue</a></li>
-        <li><a href="#">Owner Dashboard</a></li>
-        <li><a href="#">Noise Monitoring</a></li>
-        <li><a href="#">Certification</a></li>
-        <li><a href="#">Revenue Calculator</a></li>
+        <li><a href="#owners" data-action="open-owner">List Your Venue</a></li>
+        <li><a href="#owners" data-action="open-owner">Owner Dashboard</a></li>
+        <li><a href="#features">Noise Monitoring</a></li>
+        <li><a href="#features">Certification</a></li>
+        <li><a href="#owners" data-action="open-owner">Revenue Calculator</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Company</h4>
       <ul>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Community</a></li>
-        <li><a href="#">Press</a></li>
-        <li><a href="#">Investors</a></li>
-        <li><a href="#">Contact</a></li>
+        <li><a href="#main-content">About</a></li>
+        <li><a href="#community">Community</a></li>
+        <li><a href="#community">Press</a></li>
+        <li><a href="#owners">Investors</a></li>
+        <li><a href="#owners" data-action="open-owner">Contact</a></li>
       </ul>
     </div>
   </div>
@@ -806,6 +928,126 @@
 </footer>
 
 <script>
+  const venues = {
+    jerez: { name: 'Circuito de Jerez', price: 320, slots: ['09:00', '13:00', '17:00'] },
+    rota: { name: 'Airfield Rota', price: 180, slots: ['08:00', '11:00', '15:00'] },
+    lloret: { name: 'Karting Lloret', price: 95, slots: ['10:00', '12:00', '14:00', '16:00'] }
+  };
+  let activeVenueId = 'jerez';
+  let activeSlot = venues[activeVenueId].slots[0];
+
+  const toast = document.getElementById('toast');
+  const bookingModal = document.getElementById('bookingModal');
+  const ownerModal = document.getElementById('ownerModal');
+  const signinModal = document.getElementById('signinModal');
+  const bookingVenue = document.getElementById('bookingVenue');
+  const bookingDate = document.getElementById('bookingDate');
+  const bookingSlots = document.getElementById('bookingSlots');
+  const bookingSummary = document.getElementById('bookingSummary');
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('open');
+    window.clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(() => toast.classList.remove('open'), 3200);
+  }
+
+  function openModal(modal) {
+    modal.classList.add('open');
+    const focusTarget = modal.querySelector('input, select, button');
+    if (focusTarget) focusTarget.focus();
+  }
+
+  function closeModals() {
+    document.querySelectorAll('.modal-backdrop').forEach(modal => modal.classList.remove('open'));
+  }
+
+  function setBookingVenue(id) {
+    activeVenueId = venues[id] ? id : 'jerez';
+    activeSlot = venues[activeVenueId].slots[0];
+    bookingVenue.value = activeVenueId;
+    renderSlots();
+  }
+
+  function renderSlots() {
+    const venue = venues[activeVenueId];
+    bookingSlots.innerHTML = '';
+    venue.slots.forEach(slot => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `slot-btn${slot === activeSlot ? ' active' : ''}`;
+      btn.textContent = slot;
+      btn.setAttribute('aria-pressed', slot === activeSlot ? 'true' : 'false');
+      btn.addEventListener('click', () => {
+        activeSlot = slot;
+        renderSlots();
+      });
+      bookingSlots.appendChild(btn);
+    });
+    bookingSummary.textContent = `${venue.name} · €${venue.price} per session · ${activeSlot} selected`;
+  }
+
+  function openBooking(id = activeVenueId) {
+    setBookingVenue(id);
+    openModal(bookingModal);
+  }
+
+  Object.entries(venues).forEach(([id, venue]) => {
+    const option = document.createElement('option');
+    option.value = id;
+    option.textContent = venue.name;
+    bookingVenue.appendChild(option);
+  });
+  const tomorrow = new Date(Date.now() + 86400000);
+  bookingDate.value = tomorrow.toISOString().slice(0, 10);
+  bookingVenue.addEventListener('change', () => setBookingVenue(bookingVenue.value));
+  setBookingVenue(activeVenueId);
+
+  document.addEventListener('click', event => {
+    const trigger = event.target.closest('[data-action]');
+    if (!trigger) return;
+    const action = trigger.dataset.action;
+    if (action === 'open-booking') openBooking(trigger.dataset.venueId);
+    if (action === 'open-owner') openModal(ownerModal);
+    if (action === 'open-signin') openModal(signinModal);
+    if (action === 'close-modal') closeModals();
+    if (action === 'scroll-venues') document.getElementById('venues').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.querySelectorAll('.modal-backdrop').forEach(modal => {
+    modal.addEventListener('click', event => {
+      if (event.target === modal) closeModals();
+    });
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeModals();
+  });
+
+  document.querySelector('[data-action="search-venues"]').addEventListener('submit', event => {
+    event.preventDefault();
+    document.getElementById('venues').scrollIntoView({ behavior: 'smooth' });
+    showToast('Search applied to featured venues. Demo results are ready below.');
+  });
+
+  document.getElementById('bookingForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const venue = venues[activeVenueId];
+    closeModals();
+    showToast(`Reserved ${venue.name} on ${bookingDate.value} at ${activeSlot}. Demo confirmation TS-${Date.now().toString().slice(-5)} created.`);
+  });
+
+  document.getElementById('ownerForm').addEventListener('submit', event => {
+    event.preventDefault();
+    closeModals();
+    showToast('Venue onboarding request captured for the demo pipeline.');
+  });
+
+  document.getElementById('signinForm').addEventListener('submit', event => {
+    event.preventDefault();
+    closeModals();
+    showToast('Demo driver session opened.');
+  });
+
   // Hero bg load
   const bg = document.getElementById('heroBg');
   const img = new Image();
