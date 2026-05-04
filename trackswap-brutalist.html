@@ -820,7 +820,7 @@
   <h2 class="cta-title">The Track<br>Is Waiting.</h2>
   <p class="cta-body">214 venues. Available today. No phone calls, no waitlists. Find your track and drive.</p>
   <div class="cta-actions">
-    <button class="btn-brutal fill" type="button" data-action="scroll-venues" style="padding:18px 56px; font-size:13px;">Browse Venues</button>
+    <button class="btn-brutal fill" type="button" data-action="open-all-venues" style="padding:18px 56px; font-size:13px;">Browse Venues</button>
     <button class="btn-brutal outline" type="button" data-action="open-owner" style="padding:18px 56px; font-size:13px; border-left: none;">List Your Track</button>
   </div>
 </div>
@@ -907,6 +907,22 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="allVenuesModal" role="dialog" aria-modal="true" aria-labelledby="allVenuesTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">214 venues demo</div>
+        <h2 class="modal-title" id="allVenuesTitle">All Venues</h2>
+      </div>
+      <button class="modal-close" type="button" data-action="close-modal" aria-label="Close all venues dialog">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="summary-box">FULL MARKETPLACE BROWSING // DEMO INVENTORY // SELECT A VENUE TO BOOK</div>
+      <div class="slot-row" id="allVenuesList"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- FOOTER -->
@@ -970,6 +986,8 @@
   const bookingDate = document.getElementById('bookingDate');
   const bookingSlots = document.getElementById('bookingSlots');
   const bookingSummary = document.getElementById('bookingSummary');
+  const allVenuesModal = document.getElementById('allVenuesModal');
+  const allVenuesList = document.getElementById('allVenuesList');
 
   function showToast(message) {
     toast.textContent = message;
@@ -1018,12 +1036,28 @@
     openModal(bookingModal);
   }
 
+  function renderAllVenues() {
+    allVenuesList.innerHTML = '';
+    Object.entries(venues).forEach(([id, venue]) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'slot-btn';
+      btn.textContent = `${venue.name} // from €${venue.price}`;
+      btn.addEventListener('click', () => {
+        closeModals();
+        openBooking(id);
+      });
+      allVenuesList.appendChild(btn);
+    });
+  }
+
   Object.entries(venues).forEach(([id, venue]) => {
     const option = document.createElement('option');
     option.value = id;
     option.textContent = venue.name;
     bookingVenue.appendChild(option);
   });
+  renderAllVenues();
   const tomorrow = new Date(Date.now() + 86400000);
   bookingDate.value = tomorrow.toISOString().slice(0, 10);
   bookingVenue.addEventListener('change', () => setBookingVenue(bookingVenue.value));
@@ -1034,6 +1068,7 @@
     if (!trigger) return;
     const action = trigger.dataset.action;
     if (action === 'open-booking') openBooking(trigger.dataset.venueId);
+    if (action === 'open-all-venues') openModal(allVenuesModal);
     if (action === 'open-owner') openModal(ownerModal);
     if (action === 'open-signin') openModal(signinModal);
     if (action === 'close-modal') closeModals();

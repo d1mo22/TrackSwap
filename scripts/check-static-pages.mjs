@@ -13,6 +13,8 @@ for (const page of pages) {
     assert.match(html, /data-action="open-owner"/);
     assert.match(html, /data-action="open-signin"/);
     assert.match(html, /data-action="search-venues"/);
+    assert.match(html, /data-action="open-all-venues"/);
+    assert.match(html, /id="allVenuesModal"/);
     assert.match(html, /data-venue-id="jerez"/);
     assert.match(html, /data-venue-id="rota"/);
     assert.match(html, /data-venue-id="lloret"/);
