@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrackSwap — All Venues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF4500;
+    --black: #080808;
+    --white: #F0F0F0;
+    --grey: #A8A8A8;
+    --darkgrey: #1a1a1a;
+    --border: #2a2a2a;
+    --mono: 'Share Tech Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Barlow', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--body);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,69,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,69,0,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  :focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    display: flex; align-items: stretch;
+    height: 56px;
+    border-bottom: 2px solid var(--orange);
+    background: var(--black);
+  }
+  .nav-logo-block {
+    display: flex; align-items: center; padding: 0 28px;
+    border-right: 2px solid var(--border);
+    font-family: var(--display); font-size: 24px; letter-spacing: 4px; color: var(--orange);
+    text-decoration: none;
+  }
+  .nav-back {
+    display: flex; align-items: center; padding: 0 24px;
+    border-right: 1px solid var(--border);
+    color: var(--grey); text-decoration: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    transition: color 0.15s, background 0.15s;
+    gap: 8px;
+  }
+  .nav-back:hover { color: var(--white); background: rgba(255,69,0,0.06); }
+  .nav-links {
+    display: flex;
+  }
+  .nav-links a {
+    display: flex; align-items: center; padding: 0 24px;
+    border-right: 1px solid var(--border);
+    color: var(--grey); text-decoration: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-links a:hover { color: var(--white); background: rgba(255,69,0,0.06); }
+  .nav-right {
+    display: flex; align-items: stretch; margin-left: auto;
+  }
+  .nav-btn {
+    display: flex; align-items: center; padding: 0 28px;
+    border-left: 2px solid var(--border);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; background: none; color: var(--grey); border-top: none; border-right: none; border-bottom: none;
+    transition: color 0.15s;
+  }
+  .nav-btn:hover { color: var(--white); }
+  .nav-btn.primary { background: var(--orange); color: var(--white); border-left-color: var(--orange); }
+  .nav-btn.primary:hover { background: #ff5a1a; }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-top: 56px;
+    padding: 72px 60px 56px;
+    border-bottom: 2px solid var(--border);
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: end; gap: 40px;
+  }
+  .ph-sys {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange);
+    text-transform: uppercase; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sys-dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; animation: blink 1.2s step-end infinite; }
+  .ph-title {
+    font-family: var(--display); font-size: clamp(56px, 7vw, 96px);
+    letter-spacing: 4px; text-transform: uppercase; line-height: 0.9;
+    margin-bottom: 16px;
+  }
+  .ph-sub {
+    font-size: 14px; color: var(--grey); max-width: 480px; line-height: 1.65;
+  }
+  .ph-count {
+    text-align: right;
+  }
+  .ph-count-num {
+    font-family: var(--display); font-size: 80px; color: var(--orange); line-height: 1;
+  }
+  .ph-count-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--grey); text-transform: uppercase;
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex; align-items: stretch;
+    border-bottom: 2px solid var(--border);
+    background: var(--darkgrey);
+    overflow-x: auto;
+  }
+  .filter-label {
+    display: flex; align-items: center; padding: 0 24px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--grey); text-transform: uppercase;
+    border-right: 2px solid var(--border); white-space: nowrap; flex-shrink: 0;
+  }
+  .filter-btn {
+    padding: 16px 24px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    background: none; color: var(--grey); border: none; border-right: 1px solid var(--border);
+    cursor: pointer; transition: color 0.15s, background 0.15s; white-space: nowrap;
+  }
+  .filter-btn:hover { color: var(--white); background: rgba(255,69,0,0.06); }
+  .filter-btn.active { color: var(--orange); background: rgba(255,69,0,0.08); }
+  .filter-count {
+    display: flex; align-items: center; padding: 0 24px; margin-left: auto;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--grey);
+    border-left: 2px solid var(--border); flex-shrink: 0; white-space: nowrap;
+  }
+  .filter-count span { color: var(--orange); margin-left: 6px; }
+
+  /* TRACK GRID */
+  .track-grid-wrap {
+    padding: 0;
+    position: relative; z-index: 1;
+  }
+  .track-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-left: 2px solid var(--border);
+  }
+  .track-card {
+    border-right: 2px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    display: flex; flex-direction: column;
+    transition: background 0.15s;
+  }
+  .track-card:hover { background: rgba(255,69,0,0.03); }
+  .tc-image {
+    position: relative; height: 220px; overflow: hidden;
+  }
+  .tc-image img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(0.55) contrast(1.1) saturate(0.7);
+    transition: filter 0.4s, transform 0.5s;
+  }
+  .track-card:hover .tc-image img {
+    filter: brightness(0.7) contrast(1.1) saturate(0.9);
+    transform: scale(1.04);
+  }
+  .tc-type {
+    position: absolute; top: 16px; left: 16px;
+    display: inline-block; padding: 4px 10px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    background: rgba(8,8,8,0.85); border: 1px solid var(--border); color: var(--grey);
+    backdrop-filter: blur(4px);
+  }
+  .tc-type.circuit { border-color: rgba(255,69,0,0.5); color: var(--orange); }
+  .tc-avail {
+    position: absolute; top: 16px; right: 16px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--grey); display: flex; align-items: center; gap: 6px;
+  }
+  .avail-dot { width: 5px; height: 5px; border-radius: 50%; background: #4caf50; }
+  .tc-body {
+    padding: 24px 28px; flex: 1; display: flex; flex-direction: column;
+  }
+  .tc-name {
+    font-family: var(--display); font-size: 28px; letter-spacing: 2px; text-transform: uppercase;
+    line-height: 1; margin-bottom: 8px; text-decoration: none; color: inherit; display: block;
+    transition: color 0.15s;
+  }
+  a.tc-name:hover { color: var(--orange); }
+  .tc-location {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--grey); text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .tc-specs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;
+    border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 20px;
+  }
+  .tc-spec { }
+  .tc-spec-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--orange);
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .tc-spec-val {
+    font-size: 13px; color: var(--white);
+  }
+  .tc-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border);
+  }
+  .tc-price {
+    font-family: var(--display); font-size: 32px; color: var(--orange); letter-spacing: 2px;
+  }
+  .tc-price-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--grey); text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .tc-book {
+    padding: 12px 24px;
+    background: var(--orange); color: var(--white); border: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .tc-book:hover { background: #ff5a1a; }
+
+  /* HIDDEN CARD */
+  .track-card.hidden { display: none; }
+
+  /* NO RESULTS */
+  .no-results {
+    display: none; grid-column: 1 / -1;
+    padding: 80px 60px; text-align: center;
+    font-family: var(--mono); font-size: 13px; letter-spacing: 2px; color: var(--grey); text-transform: uppercase;
+  }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 500;
+    display: none; align-items: center; justify-content: center;
+    padding: 24px; background: rgba(0,0,0,0.76); backdrop-filter: blur(8px);
+  }
+  .modal-backdrop.open { display: flex; }
+  .demo-modal {
+    width: min(640px, 100%); max-height: min(760px, 92vh); overflow: auto;
+    background: #080808; border: 2px solid var(--orange);
+    box-shadow: 16px 16px 0 rgba(255,69,0,0.18);
+  }
+  .modal-head { display: flex; justify-content: space-between; gap: 24px; padding: 24px; border-bottom: 2px solid var(--border); }
+  .modal-kicker { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+  .modal-title { font-family: var(--display); font-size: 46px; letter-spacing: 3px; text-transform: uppercase; line-height: 0.95; }
+  .modal-close { width: 40px; height: 40px; border: 2px solid var(--border); background: transparent; color: var(--white); cursor: pointer; font-size: 22px; }
+  .modal-body { padding: 24px; display: grid; gap: 18px; }
+  .demo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .demo-field { display: grid; gap: 8px; }
+  .demo-field label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--grey); text-transform: uppercase; }
+  .demo-field input, .demo-field select {
+    width: 100%; background: #101010; border: 2px solid var(--border);
+    color: var(--white); font: 14px var(--body); padding: 13px 14px;
+  }
+  .slot-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .slot-btn {
+    padding: 10px 14px; background: #101010; border: 2px solid var(--border);
+    color: var(--grey); font-family: var(--mono); font-size: 12px; cursor: pointer;
+  }
+  .slot-btn.active { border-color: var(--orange); color: var(--orange); background: #1a0900; }
+  .summary-box { border: 2px solid rgba(255,69,0,0.45); background: #140700; padding: 16px; color: var(--grey); font-size: 14px; line-height: 1.6; }
+  .btn-brutal-fill { padding: 16px 40px; background: var(--orange); color: var(--white); border: none; font-family: var(--mono); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: background 0.15s; }
+  .btn-brutal-fill:hover { background: #ff5a1a; }
+
+  .toast {
+    position: fixed; right: 24px; bottom: 24px; z-index: 700;
+    display: none; max-width: 380px; padding: 14px 16px;
+    background: var(--orange); color: var(--white); font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+    box-shadow: 8px 8px 0 rgba(255,255,255,0.12);
+  }
+  .toast.open { display: block; }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  @media (max-width: 1100px) {
+    .track-grid { grid-template-columns: repeat(2, 1fr); }
+    .page-header { padding: 60px 40px 48px; }
+  }
+  @media (max-width: 700px) {
+    .track-grid { grid-template-columns: 1fr; }
+    .page-header { grid-template-columns: 1fr; padding: 48px 24px 40px; }
+    .ph-count { text-align: left; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="trackswap-brutalist.html" class="nav-logo-block">TRACKSWAP</a>
+  <a href="trackswap-brutalist.html" class="nav-back">&#8592; Back</a>
+  <div class="nav-links">
+    <a href="trackswap-brutalist.html#venues">Venues</a>
+    <a href="trackswap-brutalist.html#process">How It Works</a>
+    <a href="trackswap-brutalist.html#owners">Owners</a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" type="button" onclick="openSignin()">Sign In</button>
+    <button class="nav-btn primary" type="button" onclick="openOwner()">List Your Track</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div>
+    <div class="ph-sys">
+      <span class="sys-dot" aria-hidden="true"></span>
+      <span>LIVE INVENTORY — Updated 4 mins ago</span>
+    </div>
+    <h1 class="ph-title">All<br>Venues</h1>
+    <p class="ph-sub">Every circuit, airfield, karting track, and private venue available on TrackSwap. Filter by type or book directly.</p>
+  </div>
+  <div class="ph-count">
+    <div class="ph-count-num" id="visibleCount">12</div>
+    <div class="ph-count-label">Venues Available</div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-label">Filter:</div>
+  <button class="filter-btn active" type="button" data-filter="all">All Types</button>
+  <button class="filter-btn" type="button" data-filter="Circuit">Circuit</button>
+  <button class="filter-btn" type="button" data-filter="Airfield">Airfield</button>
+  <button class="filter-btn" type="button" data-filter="Karting">Karting</button>
+  <button class="filter-btn" type="button" data-filter="Autocross">Autocross</button>
+  <div class="filter-count">Showing <span id="filterCount">12</span> of 12</div>
+</div>
+
+<div class="track-grid-wrap">
+  <div class="track-grid" id="trackGrid">
+
+    <div class="track-card" data-type="Circuit">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/29252117/pexels-photo-29252117.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Circuito de Jerez" loading="lazy">
+        <span class="tc-type circuit">Circuit</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=jerez" class="tc-name">Circuito de Jerez</a>
+        <div class="tc-location">Jerez de la Frontera — Spain</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">4.4 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">98 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">All Week</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">€320</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=jerez&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Circuit">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/29327972/pexels-photo-29327972.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Circuit de Catalunya" loading="lazy">
+        <span class="tc-type circuit">Circuit</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=catalunya" class="tc-name">Circuit de Catalunya</a>
+        <div class="tc-location">Montmeló, Barcelona — Spain</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">4.7 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">100 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">Weekdays</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">€450</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=catalunya&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Circuit">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/1119796/pexels-photo-1119796.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Circuito de Navarra" loading="lazy">
+        <span class="tc-type circuit">Circuit</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=navarra" class="tc-name">Circuito de Navarra</a>
+        <div class="tc-location">Los Arcos, Navarra — Spain</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">3.9 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">100 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">All Week</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">€260</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=navarra&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Circuit">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/29252117/pexels-photo-29252117.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Brands Hatch" loading="lazy">
+        <span class="tc-type circuit">Circuit</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=brands-hatch" class="tc-name">Brands Hatch</a>
+        <div class="tc-location">Fawkham, Kent — United Kingdom</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">3.9 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">92 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">Weekends</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">£380</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=brands-hatch&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Circuit">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/1119796/pexels-photo-1119796.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Snetterton 300" loading="lazy">
+        <span class="tc-type circuit">Circuit</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=snetterton" class="tc-name">Snetterton 300</a>
+        <div class="tc-location">Snetterton, Norfolk — United Kingdom</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">4.8 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">90 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">All Week</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">£280</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=snetterton&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Circuit">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/29327972/pexels-photo-29327972.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Mallory Park" loading="lazy">
+        <span class="tc-type circuit">Circuit</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=mallory" class="tc-name">Mallory Park</a>
+        <div class="tc-location">Earl Shilton, Leicestershire — United Kingdom</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">2.9 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">88 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">Weekends</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">£220</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=mallory&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Airfield">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/29252117/pexels-photo-29252117.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Airfield Rota" loading="lazy">
+        <span class="tc-type">Airfield</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=rota" class="tc-name">Airfield Rota</a>
+        <div class="tc-location">El Puerto de Santa María, Cadiz — Spain</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">2.1 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">No Limit</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">Weekdays</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Concrete</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">€180</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=rota&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Airfield">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/29327972/pexels-photo-29327972.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wellesbourne Airfield" loading="lazy">
+        <span class="tc-type">Airfield</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=wellesbourne" class="tc-name">Wellesbourne Airfield</a>
+        <div class="tc-location">Wellesbourne, Warwickshire — United Kingdom</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">1.8 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">No Limit</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">Weekdays</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Tarmac</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">£140</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=wellesbourne&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Karting">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/5640496/pexels-photo-5640496.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Karting Lloret" loading="lazy">
+        <span class="tc-type">Karting</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=lloret" class="tc-name">Karting Lloret</a>
+        <div class="tc-location">Lloret de Mar, Girona — Spain</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">1.2 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">85 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">All Week</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">€95</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=lloret&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Karting">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/5640496/pexels-photo-5640496.jpeg?auto=compress&cs=tinysrgb&w=800" alt="TeamSport Karting" loading="lazy">
+        <span class="tc-type">Karting</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=teamsport" class="tc-name">TeamSport Karting</a>
+        <div class="tc-location">Lakeside, Essex — United Kingdom</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">0.9 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">82 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">All Week</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Asphalt</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">£75</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=teamsport&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Autocross">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/1119796/pexels-photo-1119796.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Industrial Lot BCN" loading="lazy">
+        <span class="tc-type">Autocross</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=lot" class="tc-name">Industrial Lot BCN</a>
+        <div class="tc-location">Zona Franca, Barcelona — Spain</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">0.8 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">90 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">Weekends</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Concrete</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">€120</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=lot&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-card" data-type="Autocross">
+      <div class="tc-image">
+        <img src="https://images.pexels.com/photos/29327972/pexels-photo-29327972.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Manby Airfield Autocross" loading="lazy">
+        <span class="tc-type">Autocross</span>
+        <span class="tc-avail"><span class="avail-dot"></span>Available</span>
+      </div>
+      <div class="tc-body">
+        <a href="trackswap-venue.html?id=manby" class="tc-name">Manby Airfield Autocross</a>
+        <div class="tc-location">Manby, Lincolnshire — United Kingdom</div>
+        <div class="tc-specs">
+          <div class="tc-spec"><div class="tc-spec-label">Length</div><div class="tc-spec-val">1.1 km</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Noise Limit</div><div class="tc-spec-val">95 dB</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Availability</div><div class="tc-spec-val">Weekends</div></div>
+          <div class="tc-spec"><div class="tc-spec-label">Surface</div><div class="tc-spec-val">Tarmac</div></div>
+        </div>
+        <div class="tc-footer">
+          <div>
+            <div class="tc-price">£100</div>
+            <div class="tc-price-label">Per Session</div>
+          </div>
+          <button class="tc-book" type="button" onclick="window.location.href='trackswap-venue.html?id=manby&book=true'">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-results" id="noResults">No venues match the selected filter.</div>
+
+  </div>
+</div>
+
+<!-- OWNER MODAL -->
+<div class="modal-backdrop" id="ownerModal" role="dialog" aria-modal="true" aria-labelledby="ownerTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Venue owners</div>
+        <h2 class="modal-title" id="ownerTitle">List Your Venue</h2>
+      </div>
+      <button class="modal-close" type="button" id="closeOwner" aria-label="Close">&times;</button>
+    </div>
+    <form class="modal-body" id="ownerForm">
+      <div class="demo-grid">
+        <div class="demo-field"><label for="ownerVenue">Venue name</label><input id="ownerVenue" required placeholder="Circuit or airfield name"></div>
+        <div class="demo-field"><label for="ownerEmail">Email</label><input id="ownerEmail" type="email" required placeholder="owner@venue.com"></div>
+      </div>
+      <button class="btn-brutal-fill" type="submit">Request Demo Onboarding</button>
+    </form>
+  </div>
+</div>
+
+<!-- SIGNIN MODAL -->
+<div class="modal-backdrop" id="signinModal" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+  <div class="demo-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Driver account</div>
+        <h2 class="modal-title" id="signinTitle">Sign In</h2>
+      </div>
+      <button class="modal-close" type="button" id="closeSignin" aria-label="Close">&times;</button>
+    </div>
+    <form class="modal-body" id="signinForm">
+      <div class="demo-field"><label for="signinEmail">Email</label><input id="signinEmail" type="email" required placeholder="driver@trackswap.demo"></div>
+      <button class="btn-brutal-fill" type="submit">Continue Demo Session</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const toast = document.getElementById('toast');
+  const ownerModal = document.getElementById('ownerModal');
+  const signinModal = document.getElementById('signinModal');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('open');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('open'), 3200);
+  }
+
+  function openModal(modal) {
+    modal.classList.add('open');
+    const first = modal.querySelector('input, select, button');
+    if (first) first.focus();
+  }
+
+  function closeModals() {
+    document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+  }
+
+  function openOwner() { openModal(ownerModal); }
+  function openSignin() { openModal(signinModal); }
+
+  document.getElementById('closeOwner').addEventListener('click', closeModals);
+  document.getElementById('closeSignin').addEventListener('click', closeModals);
+
+  document.querySelectorAll('.modal-backdrop').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) closeModals(); });
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
+
+  document.getElementById('ownerForm').addEventListener('submit', e => {
+    e.preventDefault(); closeModals();
+    showToast('OWNER ONBOARDING REQUEST CAPTURED // DEMO');
+  });
+  document.getElementById('signinForm').addEventListener('submit', e => {
+    e.preventDefault(); closeModals();
+    showToast('DRIVER DEMO SESSION OPENED');
+  });
+
+  const cards = document.querySelectorAll('.track-card');
+  const countEl = document.getElementById('filterCount');
+  const visibleEl = document.getElementById('visibleCount');
+  const noResults = document.getElementById('noResults');
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      let visible = 0;
+      cards.forEach(card => {
+        const match = filter === 'all' || card.dataset.type === filter;
+        card.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      countEl.textContent = visible;
+      visibleEl.textContent = visible;
+      noResults.style.display = visible === 0 ? 'block' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
